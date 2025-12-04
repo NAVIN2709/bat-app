@@ -1,0 +1,40 @@
+import React from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import Rules from './components/Rules';
+import NavBar from './components/Navbar';
+
+const Confirmation = () => {
+  const { courtId } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const date = searchParams.get('date');
+  const time = searchParams.get('time');
+  const price = searchParams.get('price');
+  const courtIdParam = searchParams.get('courtId');
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="navbar mt-0 mb-6">
+        <NavBar />
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl shadow mb-6 max-w-2xl mx-auto text-center">
+        <h2 className="text-3xl font-bold mb-4">Booking Confirmed!</h2>
+
+        <p className="text-gray-700 mb-2">Court ID: {courtIdParam}</p>
+        <p className="text-gray-700 mb-2">Date: {date}</p>
+        <p className="text-gray-700 mb-2">Time: {time}</p>
+        <p className="text-green-700 text-xl font-semibold mb-4">
+          Total Amount: ₹{price}
+        </p>
+
+        <div className="mt-6">
+          <h3 className="text-2xl font-bold mb-2">Court Rules</h3>
+          <Rules />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Confirmation;
