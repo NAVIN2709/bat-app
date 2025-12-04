@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import BannerImage from "../assets/logo.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+    const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [mobile, setMobile] = useState("");
   const [username, setUsername] = useState("");
@@ -21,6 +23,7 @@ const Login = () => {
       return;
     }
     console.log("Profile saved:", { mobile, username });
+    navigate("/");
   };
 
   return (

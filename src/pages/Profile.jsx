@@ -42,10 +42,12 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <div className="container p-3">
+      <div className="container p-6">
         <div className="backbutton flex items-center cursor-pointer ">
-          <ArrowLeft onClick={handleBack} />
-          <h1 className="text-xl lg:text-3xl font-bold mb-3 ml-2 mt-3">
+          <div className="arrow mb-2">
+            <ArrowLeft onClick={handleBack} />
+          </div>
+          <h1 className="text-xl lg:text-3xl font-bold mb-3 ml-2 ">
             My Profile
           </h1>
         </div>
