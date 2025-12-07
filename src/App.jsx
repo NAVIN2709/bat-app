@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Booking from './pages/Booking';
 import Confirmation from './pages/Confirmation';
-import Login from './pages/Login';
+import DetailsPage from './pages/Details';
 
 const App = () => {
   return (
@@ -20,7 +20,7 @@ const App = () => {
 
         {/* Confirmation page with dynamic bookingId */}
         <Route path="/confirmation/:bookingId" element={<Confirmation />} />
-        <Route path='/login' element={<Login/>}/>
+        <Route path='/details/:detailsId' element={<DetailsPage/>}/>
 
     </Routes>
   );

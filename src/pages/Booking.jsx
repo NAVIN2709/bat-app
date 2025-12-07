@@ -40,7 +40,7 @@ const Booking = () => {
     const timeQuery = encodeURIComponent(selectedSlots.join(","));
 
     navigate(
-      `/confirmation/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}`
+      `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}`
     );
   };
 
