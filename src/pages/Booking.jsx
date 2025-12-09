@@ -73,7 +73,7 @@ const Booking = () => {
         </p>
       </div>
 
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center mt-4 pb-4">
         <button
           onClick={handleConfirm}
           className="px-6 py-3 bg-green-600 text-white rounded-xl shadow hover:bg-green-700"
