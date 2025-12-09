@@ -11,11 +11,9 @@ const Confirmation = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="navbar mt-0 mb-6">
         <NavBar />
-      </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-6 max-w-2xl mx-auto text-center">
+      <div className="bg-white p-6 rounded-2xl shadow mb-6 max-w-2xl mx-auto text-center mt-3">
         <h2 className="text-3xl font-bold mb-4">Booking Confirmed {name} !</h2>
 
         <p className="text-gray-700 mb-2">Date: {date}</p>

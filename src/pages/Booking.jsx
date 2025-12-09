@@ -45,11 +45,11 @@ const Booking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="navbar mt-0 mb-6">
-        <NavBar />
+    <div className="min-h-screen bg-gray-50 px-4 py-0">
+          <NavBar />
+      <div className="court mt-2">
+        <CourtInfo court={court} />
       </div>
-      <CourtInfo court={court} />
 
       {/* ✅ Pass onDateSelect */}
       <CourtCalendar

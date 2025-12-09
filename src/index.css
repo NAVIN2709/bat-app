@@ -1,9 +1,88 @@
 @import "tailwindcss";
 
-#root,html,body {
+#root,
+html,
+body {
   height: 100vh;
   margin: 0;
   padding: 0;
   width: 100vw;
   box-sizing: border-box;
+}
+/* Fade Up Animation */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeUp {
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+/* Slide Left */
+@keyframes slideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slideLeft {
+  animation: slideLeft 0.9s ease-out forwards;
+}
+
+/* Slide Right */
+@keyframes slideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slideRight {
+  animation: slideRight 0.9s ease-out forwards;
+}
+
+/* Global scrollbar for all elements */
+* {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #22c55e #f9fafb; /* thumb color | track color */
+}
+
+/* Webkit browsers */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px; /* horizontal scrollbar */
+}
+
+*::-webkit-scrollbar-track {
+  background: #f9fafb; /* very light white/gray */
+  border-radius: 10px;
+  margin: 4px 0; /* small padding inside the track */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #22c55e; /* vibrant green */
+  border-radius: 10px;
+  border: 3px solid #f9fafb; /* gives that "floating" SaaS look */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #16a34a; /* slightly darker green on hover */
+  transition: background-color 0.2s ease-in-out;
+}
+
+*::-webkit-scrollbar-corner {
+  background: #f9fafb; /* handle the corner where horizontal and vertical meet */
 }
