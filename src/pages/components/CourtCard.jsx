@@ -1,9 +1,24 @@
 import React from "react";
 import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const CourtCard = ({ court }) => {
+  const navigate = useNavigate();
+
+  const handleCourtClick = (id) => {
+    navigate(`/booking/${id}`, {
+      state: {
+        name: court.name,
+        located: court.location,
+        price: court.price,
+        id : id
+      },
+    });
+  };
+
   return (
-    <div className="
+    <div
+      className="
       bg-white
       rounded-2xl 
       border border-green-100
@@ -13,10 +28,11 @@ const CourtCard = ({ court }) => {
       transition-all 
       duration-300 
       hover:-translate-y-1
-    ">
+    "
+    >
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={court.image}
+          src={court.imageUrl}
           alt={court.name}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
@@ -30,6 +46,7 @@ const CourtCard = ({ court }) => {
           <p className="text-green-700 font-semibold text-xl">₹{court.price}</p>
 
           <button
+            onClick={() => handleCourtClick(court._id)}
             className="
               bg-green-600 text-white 
               px-4 py-2 
@@ -37,6 +54,7 @@ const CourtCard = ({ court }) => {
               text-sm 
               hover:bg-green-700 
               transition
+              cursor-pointer
             "
           >
             Book Now

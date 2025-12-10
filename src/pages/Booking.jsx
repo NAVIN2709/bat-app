@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import CourtInfo from "./components/CourtInfo";
 import Rules from "./components/Rules";
 import CourtCalendar from "./components/CourtCalender";
@@ -7,15 +7,9 @@ import TimeCarousel from "./components/TimeCarousel";
 import NavBar from "./components/Navbar";
 
 const Booking = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [totalPrice, setTotalPrice] = useState(0);
-
-  const court = {
-    id: 1,
-    name: "Smash Pro Indoor Arena",
-    location: "Trichy",
-    price: 250,
-  };
+  const { name, located, price,id } = location.state;
 
   const availability = {
     "2025-12-01": true,
@@ -24,20 +18,27 @@ const Booking = () => {
     "2025-12-04": false,
   };
 
+  const court = {
+    id : id ,
+    name: name,
+    located: located,
+    price: price,
+  };
+
   const slots = [
     { time: "10:00-11:00", booked: false },
     { time: "11:00-12:00", booked: true },
     { time: "12:00-13:00", booked: false },
   ];
 
-  // ✅ State for selection
-  const [selectedDate, setSelectedDate] = useState("2025-12-01");
+  const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlots, setSelectedSlots] = useState([]);
 
   const handleConfirm = () => {
     const calculatedPrice = selectedSlots.length * court.price;
 
     const timeQuery = encodeURIComponent(selectedSlots.join(","));
+    console.log(timeQuery,selectedDate,calculatedPrice)
 
     navigate(
       `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}`
@@ -46,7 +47,7 @@ const Booking = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-0">
-          <NavBar />
+      <NavBar />
       <div className="court mt-2">
         <CourtInfo court={court} />
       </div>
