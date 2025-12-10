@@ -18,5 +18,9 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/turfs", turfRoutes);
 app.use("/api/bookings", bookingRoutes);
 
+app.get("/",(req,res)=>{
+    res.send("alive")
+})
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

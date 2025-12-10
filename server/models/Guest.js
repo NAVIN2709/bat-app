@@ -8,4 +8,4 @@ const guestSchema = new mongoose.Schema({
   otpExpires: Date,
 }, { timestamps: true });
 
-module.exports = mongoose.model("Guest", guestSchema);
+module.exports = mongoose.model("Guest", guestSchema,"guests");

@@ -46,16 +46,16 @@ const TimeCarousel = ({ slots = [], selectedSlots = [], onSlotSelect }) => {
       </div>
 
       {/* Legend */}
-      <div className="mt-6 flex items-center gap-6 text-sm font-medium text-gray-700">
-        <div className="flex items-center gap-2">
+      <div className="mt-6 flex items-center gap-2 text-sm font-medium text-gray-">
+        <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded-full bg-green-100 border border-green-300 shadow-sm"></span>
           <span>Available</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded-full bg-green-700 border border-green-800 shadow-sm"></span>
           <span>Selected</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded-full bg-red-600 border border-red-700 shadow-sm"></span>
           <span>Booked</span>
         </div>

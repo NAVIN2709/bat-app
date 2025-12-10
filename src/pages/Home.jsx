@@ -1,10 +1,26 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CourtCard from "./components/CourtCard";
 import BannerImage from "../assets/banner.jpg";
 import Navbar from "./components/Navbar";
+import axios from "axios";
 
 const Home = () => {
+  const [courts, setCourts] = useState([]);
+
+  useEffect(() => {
+    const fetchCourts = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/turfs");
+        setCourts(res.data);
+      } catch (error) {
+        console.error("Error fetching courts:", error);
+      }
+    };
+
+    fetchCourts();
+  }, []);
+
   const courtsRef = useRef();
   const scrollToCourts = () => {
     if (!courtsRef.current) return;
@@ -18,42 +34,6 @@ const Home = () => {
       top: offsetPosition,
       behavior: "smooth",
     });
-  };
-
-  const navigate = useNavigate();
-
-  const courts = [
-    {
-      id: 1,
-      name: "Smash Pro Indoor Arena",
-      location: "Trichy, Tamil Nadu",
-      rating: 4.7,
-      price: 250,
-      image:
-        "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200",
-    },
-    {
-      id: 2,
-      name: "Feather Shots Court",
-      location: "Chennai, Tamil Nadu",
-      rating: 4.5,
-      price: 300,
-      image:
-        "https://images.unsplash.com/photo-1599058918144-eb18f1d4807d?q=80&w=1200",
-    },
-    {
-      id: 3,
-      name: "Arena 24x7 Sports Club",
-      location: "Bangalore, Karnataka",
-      rating: 4.8,
-      price: 280,
-      image:
-        "https://images.unsplash.com/photo-1518602164572-75be7f1e22b2?q=80&w=1200",
-    },
-  ];
-
-  const handleCourtClick = (id) => {
-    navigate(`/booking/${id}`);
   };
 
   return (
@@ -109,8 +89,7 @@ const Home = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {courts.map((court, index) => (
             <div
-              key={court.id}
-              onClick={() => handleCourtClick(court.id)}
+              key={index}
               className="cursor-pointer opacity-0"
               style={{
                 animation: `fadeUp 0.8s ease-out forwards`,
