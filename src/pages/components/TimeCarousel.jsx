@@ -15,7 +15,7 @@ const TimeCarousel = ({ slots = [], selectedSlots = [], onSlotSelect }) => {
 
       {/* Slot list */}
       <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-        {slots.map((slot, index) => {
+        {slots?.map((slot, index) => {
           const isSelected = selectedSlots.includes(slot.time);
           const isBooked = slot.booked;
 
