@@ -22,7 +22,7 @@ const NavBar = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/google";
+    window.location.href = `${import.meta.env.vite.BACKEND_URL}/auth/google`;
   };
 
   const handleLogout = () => {

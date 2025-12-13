@@ -17,7 +17,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/bookings/${user.guestId}`);
+        const res = await axios.get(`${import.meta.env.vite.BACKEND_URL}/api/bookings/${user.guestId}`);
         setReservations(res.data.bookings);
       } catch (err) {
         console.error(err.response?.data || err.message);

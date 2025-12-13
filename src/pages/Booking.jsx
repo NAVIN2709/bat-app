@@ -23,7 +23,7 @@ const Booking = () => {
     const fetchTimings = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/turfs/court-timings/${id}`
+          `${import.meta.env.vite.BACKEND_URL}/api/turfs/court-timings/${id}`
         );
 
         setBookedData(res.data.bookings.bookings);

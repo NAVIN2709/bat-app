@@ -31,7 +31,7 @@ const DetailsPage = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post("http://localhost:5000/api/otp/request", {
+      const res = await axios.post(`${import.meta.env.vite.BACKEND_URL}/api/otp/request`, {
         name: username,
         email: user.email,
         phone: mobile,
@@ -53,13 +53,13 @@ const DetailsPage = () => {
       setLoading(true);
 
       // Step 1: Verify OTP
-      const otpRes = await axios.post("http://localhost:5000/api/otp/verify", {
+      const otpRes = await axios.post(`${import.meta.env.vite.BACKEND_URL}/api/otp/verify`, {
         phone: mobile,
         otp,
       });
 
       // Step 2: Create Booking (status: paid for now, after payemnt integration route to it)
-      const bookingRes = await axios.post("http://localhost:5000/api/bookings", {
+      const bookingRes = await axios.post(`${import.meta.env.vite.BACKEND_URL}/api/bookings`, {
         guestId : user.guestId ,
         turfId : courtId ,
         date,
