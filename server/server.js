@@ -18,7 +18,7 @@ const Guest = require("./models/Guest");
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174","https://batapp-admin.vercel.app/","https://bat-app-demo.vercel.app/"],
+    origin: ["http://localhost:5173", "http://localhost:5174","https://batapp-admin.vercel.app","https://bat-app-demo.vercel.app"],
     credentials: true,
   })
 );
