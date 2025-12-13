@@ -1,43 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "./components/Navbar";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const Profile = () => {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
   };
-  // Mock User Data
-  const user = {
-    name: "Navin Kumar",
-    mobile: "+91 82206 20170",
-  };
+  const user = jwtDecode(localStorage.getItem("token"));
 
-  // Mock Past Reservations
-  const reservations = [
-    {
-      id: 1,
-      court: "Smash Pro Indoor Arena",
-      date: "2025-12-01",
-      time: "10:00 - 11:00",
-      amount: 250,
-    },
-    {
-      id: 2,
-      court: "KaviKanna Badminton Court",
-      date: "2025-11-24",
-      time: "12:00 - 13:00",
-      amount: 250,
-    },
-    {
-      id: 3,
-      court: "Arena Club Sports Hall",
-      date: "2025-11-18",
-      time: "09:00 - 10:00",
-      amount: 300,
-    },
-  ];
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/bookings/${user.guestId}`);
+        setReservations(res.data.bookings);
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,10 +48,7 @@ const Profile = () => {
 
           <div className="space-y-2">
             <p className="text-gray-700">
-              <span className="font-semibold">Name:</span> {user.name}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-semibold">Mobile:</span> {user.mobile}
+              <span className="font-semibold">Name:</span> {user?.name}
             </p>
           </div>
         </div>
@@ -71,20 +58,34 @@ const Profile = () => {
           <h2 className="text-xl font-semibold mb-4">Past Reservations</h2>
 
           <div className="space-y-4">
-            {reservations.map((r) => (
+            {reservations?.map((r) => (
               <div
-                key={r.id}
+                key={r._id}
                 className="border rounded-lg p-4 bg-gray-50 shadow-sm"
               >
-                <p className="font-bold text-lg">{r.court}</p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">BookingId:</span> {r._id}
+                </p>
                 <p className="text-gray-700">
                   <span className="font-semibold">Date:</span> {r.date}
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-semibold">Time:</span> {r.time}
+                  <span className="font-semibold">Time:</span> {r.slot}
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-semibold">Amount:</span> ₹{r.amount}
+                  <span className="font-semibold">Amount:</span> ₹{r.totalPrice}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Court Name:</span> {r.turf.name}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Location:</span> {r.turf.location}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Mobile:</span> {r.guest.phone}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Had Played:</span> {r.isDone ? "Done" : "Not Done"}
                 </p>
               </div>
             ))}

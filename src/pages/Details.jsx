@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import BannerImage from "../assets/logo.jpg";
-import { MoveLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const DetailsPage = () => {
   const [searchParams] = useSearchParams();
+  const user = jwtDecode(localStorage.getItem("token"));
   const navigate = useNavigate();
-  const detailsId = useParams();
-  const confirmationId = detailsId.detailsId;
   const date = searchParams.get("date");
+  const courtId = searchParams.get("courtId")
   const time = searchParams.get("times");
   const price = searchParams.get("price");
 
   const [mobile, setMobile] = useState("");
   const [username, setUsername] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [useremail, setUseremail] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const sendOtp = async () => {
     try {
@@ -26,11 +33,10 @@ const DetailsPage = () => {
 
       const res = await axios.post("http://localhost:5000/api/otp/request", {
         name: username,
-        email: useremail,
+        email: user.email,
         phone: mobile,
       });
 
-      console.log(res.data.message);
       setOtpSent(true);
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -46,15 +52,34 @@ const DetailsPage = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post("http://localhost:5000/api/otp/verify", {
+      // Step 1: Verify OTP
+      const otpRes = await axios.post("http://localhost:5000/api/otp/verify", {
         phone: mobile,
         otp,
       });
 
-      console.log(res.data);
+      // Step 2: Create Booking (status: paid for now, after payemnt integration route to it)
+      const bookingRes = await axios.post("http://localhost:5000/api/bookings", {
+        guestId : user.guestId ,
+        turfId : courtId ,
+        date,
+        slot: time,
+        status: "paid",
+        totalPrice : price
+      });
 
-      navigate(`/confirmation/${confirmationId}`, {
-        state: { date, time, price, name: username },
+      console.log("Booking Created:", bookingRes.data);
+
+      const bookingId = bookingRes.data.bookingId;
+
+      // Step 3: Navigate to confirmation page
+      navigate(`/confirmation/${bookingId}`, {
+        state: {
+          date,
+          time,
+          price,
+          name: username,
+        },
       });
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -65,10 +90,9 @@ const DetailsPage = () => {
   };
 
   const handleSubmitProfile = () => {
-    if (!mobile || !username) return alert("Both fields are required.");
+    if (!mobile) return alert("Mobile Number is required.");
     if (mobile.length !== 10)
       return alert("Enter a valid 10-digit mobile number");
-    if (!useremail.length) return alert("Enter your email");
     sendOtp();
   };
 
@@ -91,10 +115,10 @@ const DetailsPage = () => {
             className="absolute left-0 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition"
             onClick={handleBack}
           >
-            <MoveLeft className="w-6 h-6 text-gray-700" />
+            <ArrowLeft className="text-gray-700" />
           </div>
-          <h1 className="mx-auto text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center">
-            {otpSent ? "Verify OTP" : "Submit Your Details"}
+          <h1 className="mx-auto text-md sm:text-2xl md:text-3xl font-bold text-gray-800 text-center">
+            {otpSent ? "Verify OTP" : "Submit Your Number"}
           </h1>
         </div>
 
@@ -106,7 +130,7 @@ const DetailsPage = () => {
                 Mobile Number
               </label>
               <input
-                type="tel"
+                type="number"
                 maxLength="10"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
@@ -114,34 +138,19 @@ const DetailsPage = () => {
                 className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
               />
             </div>
-
             <div>
               <label className="text-sm sm:text-base font-medium text-gray-700">
                 Full Name
               </label>
               <input
                 type="text"
-                maxLength="25"
+                maxLength="50"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your full name"
+                placeholder="Enter your name"
                 className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
               />
             </div>
-            <div>
-              <label className="text-sm sm:text-base font-medium text-gray-700">
-                E-Mail
-              </label>
-              <input
-                type="email"
-                maxLength="25"
-                value={useremail}
-                onChange={(e) => setUseremail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
-              />
-            </div>
-
             <button
               onClick={handleSubmitProfile}
               className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-xl shadow-lg hover:from-green-500 hover:to-green-600 transition"
@@ -160,7 +169,7 @@ const DetailsPage = () => {
 
             <input
               type="text"
-              maxLength="4"
+              maxLength="8"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="Enter OTP"

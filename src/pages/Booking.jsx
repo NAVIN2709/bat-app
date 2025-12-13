@@ -5,40 +5,99 @@ import Rules from "./components/Rules";
 import CourtCalendar from "./components/CourtCalender";
 import TimeCarousel from "./components/TimeCarousel";
 import NavBar from "./components/Navbar";
+import axios from "axios";
+import { SlEmotsmile } from "react-icons/sl";
 
 const Booking = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, located, price,id } = location.state;
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSlots, setSelectedSlots] = useState([]);
+  const [bookedData, setBookedData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [disabled, setDisabled] = useState(true);
+  const { name, located, price, id } = location.state;
 
-  const availability = {
-    "2025-12-01": true,
-    "2025-12-02": false,
-    "2025-12-03": true,
-    "2025-12-04": false,
+  // 🔥 Fetch Booked Slots from Backend
+  useEffect(() => {
+    const fetchTimings = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/turfs/court-timings/${id}`
+        );
+
+        setBookedData(res.data.bookings.bookings);
+      } catch (err) {
+        console.error("Error fetching timings:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTimings();
+  }, []);
+
+  const availability = {};
+
+  const baseSlots = [
+    { time: "6:00-7:00", booked: false },
+    { time: "7:00-8:00", booked: false },
+    { time: "8:00-9:00", booked: false },
+    { time: "9:00-10:00", booked: false },
+    { time: "10:00-11:00", booked: false },
+    { time: "11:00-12:00", booked: false },
+    { time: "12:00-13:00", booked: false },
+    { time: "13:00-14:00", booked: false },
+    { time: "14:00-15:00", booked: false },
+    { time: "15:00-16:00", booked: false },
+    { time: "16:00-17:00", booked: false },
+    { time: "17:00-18:00", booked: false },
+    { time: "18:00-19:00", booked: false },
+    { time: "19:00-20:00", booked: false },
+    { time: "20:00-21:00", booked: false },
+    { time: "21:00-22:00", booked: false },
+  ];
+
+  const setTimings = () => {
+    var x = 0;
+    bookedData?.map((b) => {
+      b.slots.map((slot) => {
+        baseSlots.map((baseSlot) => {
+          if (baseSlot.time == slot) {
+            baseSlot.booked = true;
+          }
+        });
+      });
+      baseSlots.forEach((baseSlot) => {
+        if (baseSlot.booked == true) {
+          x = x + 1;
+        }
+      });
+      if ( x == 16){
+        availability[b.date] = false;
+        x = 0
+      }else{
+        availability[b.date] = true;
+        x = 0
+      }
+    });
   };
 
+  setTimings();
+  
+
   const court = {
-    id : id ,
+    id: id,
     name: name,
     located: located,
     price: price,
   };
 
-  const slots = [
-    { time: "10:00-11:00", booked: false },
-    { time: "11:00-12:00", booked: true },
-    { time: "12:00-13:00", booked: false },
-  ];
-
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedSlots, setSelectedSlots] = useState([]);
-
   const handleConfirm = () => {
+    if (!selectedDate || selectedSlots.length === 0) return;
     const calculatedPrice = selectedSlots.length * court.price;
 
     const timeQuery = encodeURIComponent(selectedSlots.join(","));
-    console.log(timeQuery,selectedDate,calculatedPrice)
 
     navigate(
       `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}`
@@ -52,16 +111,16 @@ const Booking = () => {
         <CourtInfo court={court} />
       </div>
 
-      {/* ✅ Pass onDateSelect */}
+      {/* Pass onDateSelect */}
       <CourtCalendar
         availability={availability}
         selectedDate={selectedDate}
         onDateSelect={setSelectedDate}
       />
 
-      {/* ✅ Pass onSlotSelect */}
+      {/*  Pass onSlotSelect */}
       <TimeCarousel
-        slots={slots}
+        slots={baseSlots}
         selectedSlots={selectedSlots}
         onSlotSelect={setSelectedSlots}
       />

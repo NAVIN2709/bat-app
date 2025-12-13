@@ -18,8 +18,28 @@ const turfSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    bookings: [
+      {
+        date: {
+          type: String,
+          required: true,
+        },
+        slots: {
+          type: [String],
+          required: true,
+        },
+        bookingId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Booking",
+        },
+        doneBy: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Turf", turfSchema,"turfs");
+module.exports = mongoose.model("Turf", turfSchema, "turfs");
