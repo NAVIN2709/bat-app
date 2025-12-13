@@ -11,7 +11,7 @@ const Home = () => {
   useEffect(() => {
     const fetchCourts = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.vite.BACKEND_URL}/api/turfs`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/turfs`);
         setCourts(res.data);
       } catch (error) {
         console.error("Error fetching courts:", error);

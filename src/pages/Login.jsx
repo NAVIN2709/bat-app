@@ -10,7 +10,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    window.location.href = `${import.meta.env.vite.BACKEND_URL}/auth/google`;
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
   };
 
   const handleBack = () => navigate("/");
