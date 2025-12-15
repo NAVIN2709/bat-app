@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
+import { ArrowBigRightIcon, ArrowBigLeft } from "lucide-react";
 
 const CourtCalendar = ({
   availability = {},
@@ -33,6 +34,9 @@ const CourtCalendar = ({
   const handleNextMonth = () => {
     setCurrentMonth(currentMonth.add(1, "month"));
   };
+  const handlePrevMonth = () => {
+    setCurrentMonth(currentMonth.add(-1, "month"));
+  };
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-2xl shadow mb-6 max-w-3xl mx-auto">
@@ -43,12 +47,47 @@ const CourtCalendar = ({
         <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
           {currentMonth.format("MMMM YYYY")}
         </h3>
-        <button
-          onClick={handleNextMonth}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          Next
-        </button>
+        <div className="buttons">
+          <button
+            onClick={handlePrevMonth}
+            className="
+    p-2
+    rounded-xl
+    border border-green-200
+    bg-green-50
+    hover:bg-green-100
+    hover:border-green-300
+    shadow-sm
+    hover:shadow-md
+    transition
+    duration-200
+    active:scale-95
+    mr-2
+    cursor-pointer
+  "
+          >
+            <ArrowBigLeft size={18} className="text-green-600" />
+          </button>
+          <button
+            onClick={handleNextMonth}
+            className="
+    p-2
+    rounded-xl
+    border border-green-200
+    bg-green-50
+    hover:bg-green-100
+    hover:border-green-300
+    shadow-sm
+    hover:shadow-md
+    transition
+    duration-200
+    active:scale-95
+    cursor-pointer
+  "
+          >
+            <ArrowBigRightIcon size={18} className="text-green-600" />
+          </button>
+        </div>
       </div>
 
       {/* Weekday header */}
