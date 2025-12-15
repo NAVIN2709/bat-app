@@ -50,6 +50,9 @@ const Profile = () => {
             <p className="text-gray-700">
               <span className="font-semibold">Name:</span> {user?.name}
             </p>
+            <p className="text-gray-700">
+              <span className="font-semibold text-md">Email:</span> {user?.email}
+            </p>
           </div>
         </div>
 

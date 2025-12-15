@@ -1,12 +1,25 @@
 const Booking = require("../models/Booking");
 const Turf = require("../models/Turf");
 const Guest = require("../models/Guest");
-const sendEmail = require("../utils/sendEmail");
 const apiKeyAuth = require("../middlewares/AuthMiddleware");
+const  { Resend } =  require("resend")
+const dotenv = require("dotenv");
+dotenv.config();
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Request OTP
+const sendEmail = async (to, subject, html) => {
+  return await resend.emails.send({
+    from: "Your App <onboarding@resend.dev>",
+    to,
+    subject,
+    html,
+  });
+};
 
 // Create booking
 const createBooking = async (req, res) => {
-  const { guestId, turfId, date, slot, totalPrice } = req.body;
+  const { guestId, turfId, date, slot, totalPrice,email } = req.body;
 
   const turf = await Turf.findById(turfId);
   if (!turf) return res.status(404).json({ message: "Turf not found" });
@@ -46,6 +59,12 @@ const createBooking = async (req, res) => {
       },
     },
     { new: true }
+  );
+
+  await sendEmail(
+    email,
+    "Booking Confirmed",
+    `Your booking for ${booking.turf.name} on ${booking.date} at ${booking.slot} is confirmed.`
   );
 
   res.json({

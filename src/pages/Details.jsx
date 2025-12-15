@@ -65,7 +65,8 @@ const DetailsPage = () => {
         date,
         slot: time,
         status: "paid",
-        totalPrice : price
+        totalPrice : price,
+        email: user.email,
       });
 
       console.log("Booking Created:", bookingRes.data);

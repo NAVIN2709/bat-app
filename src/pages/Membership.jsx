@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "./components/Navbar";
+import axios from "axios";
 
 const MembershipPage = () => {
   const [form, setForm] = useState({
@@ -9,6 +10,25 @@ const MembershipPage = () => {
     court: "",
     startDate: "",
   });
+  const [courts, setCourts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourts = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`
+        );
+        setCourts(res.data);
+      } catch (error) {
+        console.error("Error fetching courts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourts();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -116,17 +136,25 @@ const MembershipPage = () => {
             <label className="text-sm font-semibold text-green-700">
               Court
             </label>
+
             <select
               name="court"
               value={form.court}
               onChange={handleChange}
               required
-              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+               focus:ring-2 focus:ring-green-500 focus:outline-none"
+              disabled={loading}
             >
-              <option value="">Select court</option>
-              <option>Court 1</option>
-              <option>Court 2</option>
-              <option>Court 3</option>
+              <option value="">
+                {loading ? "Loading courts..." : "Select court"}
+              </option>
+
+              {courts.map((court) => (
+                <option key={court._id} value={court._id}>
+                  {court.name}
+                </option>
+              ))}
             </select>
           </div>
 
