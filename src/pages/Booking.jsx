@@ -6,19 +6,40 @@ import CourtCalendar from "./components/CourtCalender";
 import TimeCarousel from "./components/TimeCarousel";
 import NavBar from "./components/Navbar";
 import axios from "axios";
-import { SlEmotsmile } from "react-icons/sl";
+import dayjs from "dayjs";
 
 const Booking = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState("");
+  const BASE_SLOTS = [
+    { time: "06:00-07:00" },
+    { time: "07:00-08:00" },
+    { time: "08:00-09:00" },
+    { time: "09:00-10:00" },
+    { time: "10:00-11:00" },
+    { time: "11:00-12:00" },
+    { time: "12:00-13:00" },
+    { time: "13:00-14:00" },
+    { time: "14:00-15:00" },
+    { time: "15:00-16:00" },
+    { time: "16:00-17:00" },
+    { time: "17:00-18:00" },
+    { time: "18:00-19:00" },
+    { time: "19:00-20:00" },
+    { time: "20:00-21:00" },
+    { time: "21:00-22:00" },
+  ];
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format("YYYY-MM-DD")
+  );
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [bookedData, setBookedData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [disabled, setDisabled] = useState(true);
+  const [availability, setAvailability] = useState({});
+  const [slots, setSlots] = useState(BASE_SLOTS);
   const { name, located, price, id } = location.state;
 
-  // 🔥 Fetch Booked Slots from Backend
   useEffect(() => {
     const fetchTimings = async () => {
       try {
@@ -37,54 +58,38 @@ const Booking = () => {
     fetchTimings();
   }, []);
 
-  const availability = {};
+  useEffect(() => {
+    if (!bookedData.length || !selectedDate) return;
 
-  const baseSlots = [
-    { time: "6:00-7:00", booked: false },
-    { time: "7:00-8:00", booked: false },
-    { time: "8:00-9:00", booked: false },
-    { time: "9:00-10:00", booked: false },
-    { time: "10:00-11:00", booked: false },
-    { time: "11:00-12:00", booked: false },
-    { time: "12:00-13:00", booked: false },
-    { time: "13:00-14:00", booked: false },
-    { time: "14:00-15:00", booked: false },
-    { time: "15:00-16:00", booked: false },
-    { time: "16:00-17:00", booked: false },
-    { time: "17:00-18:00", booked: false },
-    { time: "18:00-19:00", booked: false },
-    { time: "19:00-20:00", booked: false },
-    { time: "20:00-21:00", booked: false },
-    { time: "21:00-22:00", booked: false },
-  ];
+    // reset slots
+    const updatedSlots = BASE_SLOTS.map((slot) => ({
+      ...slot,
+      booked: false,
+    }));
 
-  const setTimings = () => {
-    var x = 0;
-    bookedData?.map((b) => {
-      b.slots.map((slot) => {
-        baseSlots.map((baseSlot) => {
-          if (baseSlot.time == slot) {
-            baseSlot.booked = true;
-          }
+    const availabilityMap = {};
+
+    bookedData.forEach((b) => {
+      let bookedCount = 0;
+      if (b.date == selectedDate) {
+        b.slots.forEach((bookedTime) => {
+          updatedSlots.forEach((s) => {
+            if (s.time == bookedTime) {
+              s.booked = true;
+            }
+          });
         });
-      });
-      baseSlots.forEach((baseSlot) => {
-        if (baseSlot.booked == true) {
-          x = x + 1;
-        }
-      });
-      if ( x == 16){
-        availability[b.date] = false;
-        x = 0
-      }else{
-        availability[b.date] = true;
-        x = 0
       }
-    });
-  };
 
-  setTimings();
-  
+      // count booked slots for this date
+      b.slots.length === 16
+        ? (availabilityMap[b.date] = false)
+        : (availabilityMap[b.date] = true);
+    });
+
+    setSlots(updatedSlots);
+    setAvailability(availabilityMap);
+  }, [selectedDate,bookedData]);
 
   const court = {
     id: id,
@@ -120,7 +125,7 @@ const Booking = () => {
 
       {/*  Pass onSlotSelect */}
       <TimeCarousel
-        slots={baseSlots}
+        slots={slots}
         selectedSlots={selectedSlots}
         onSlotSelect={setSelectedSlots}
       />
