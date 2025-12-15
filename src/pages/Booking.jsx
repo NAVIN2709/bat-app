@@ -12,6 +12,7 @@ const Booking = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const BASE_SLOTS = [
+    { time: "05:00-06:00" },
     { time: "06:00-07:00" },
     { time: "07:00-08:00" },
     { time: "08:00-09:00" },
@@ -27,7 +28,6 @@ const Booking = () => {
     { time: "18:00-19:00" },
     { time: "19:00-20:00" },
     { time: "20:00-21:00" },
-    { time: "21:00-22:00" },
   ];
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("YYYY-MM-DD")

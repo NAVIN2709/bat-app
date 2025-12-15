@@ -7,6 +7,7 @@ import Confirmation from './pages/Confirmation';
 import DetailsPage from './pages/Details';
 import AuthSuccess from './pages/AuthSuccess';
 import LoginPage from './pages/Login';
+import MembershipPage from './pages/Membership';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/confirmation/:bookingId" element={<Confirmation />} />
         <Route path='/details/:detailsId' element={<DetailsPage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
+        <Route path='/membership' element={<MembershipPage/>}/>
 
     </Routes>
   );
