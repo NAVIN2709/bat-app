@@ -2,7 +2,10 @@ const Booking = require("../models/Booking");
 const Turf = require("../models/Turf");
 const Guest = require("../models/Guest");
 const apiKeyAuth = require("../middlewares/AuthMiddleware");
-const  { Resend } =  require("resend")
+const { Resend } = require("resend");
+const {
+  bookingConfirmationEmail,
+} = require("../utils/bookingConfirmationEmail");
 const dotenv = require("dotenv");
 dotenv.config();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -19,7 +22,8 @@ const sendEmail = async (to, subject, html) => {
 
 // Create booking
 const createBooking = async (req, res) => {
-  const { guestId, turfId, date, slot, totalPrice,email } = req.body;
+  const { guestId, turfId, date, slot, totalPrice, email, courtName,name } =
+    req.body;
 
   const turf = await Turf.findById(turfId);
   if (!turf) return res.status(404).json({ message: "Turf not found" });
@@ -43,8 +47,9 @@ const createBooking = async (req, res) => {
     slot,
     totalPrice: totalPrice,
     status: "paid",
-    isDone : false
+    isDone: false,
   });
+  const bookingId = booking._id;
 
   await Turf.findByIdAndUpdate(
     turfId,
@@ -54,7 +59,7 @@ const createBooking = async (req, res) => {
           date: date,
           slots: slot,
           bookingId: booking._id,
-          doneBy : "guest"
+          doneBy: "guest",
         },
       },
     },
@@ -64,7 +69,14 @@ const createBooking = async (req, res) => {
   await sendEmail(
     email,
     "Booking Confirmed",
-    `Your booking for ${booking.turf.name} on ${booking.date} at ${booking.slot} is confirmed.`
+    bookingConfirmationEmail({
+      name,
+      date,
+      bookingId,
+      slot,
+      totalPrice,
+      courtName,
+    })
   );
 
   res.json({
@@ -155,5 +167,10 @@ const updateDone = async (req, res) => {
   }
 };
 
-
-module.exports = { createBooking, confirmBooking, getBooking, getAllBooking, updateDone };
+module.exports = {
+  createBooking,
+  confirmBooking,
+  getBooking,
+  getAllBooking,
+  updateDone,
+};

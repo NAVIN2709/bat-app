@@ -6,7 +6,6 @@ import NavBar from "./components/Navbar";
 const Confirmation = () => {
   const location = useLocation();
   const { bookingId } = useParams();
-  console.log(bookingId)
   const { time, date, price, name } = location.state;
 
   return (

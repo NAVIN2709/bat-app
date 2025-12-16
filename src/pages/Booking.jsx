@@ -82,7 +82,7 @@ const Booking = () => {
       }
 
       // count booked slots for this date
-      b.slots.length === 16
+      b.slots.length == 17
         ? (availabilityMap[b.date] = false)
         : (availabilityMap[b.date] = true);
     });
@@ -105,7 +105,7 @@ const Booking = () => {
     const timeQuery = encodeURIComponent(selectedSlots.join(","));
 
     navigate(
-      `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}`
+      `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}&courtName=${court.name}`
     );
   };
 

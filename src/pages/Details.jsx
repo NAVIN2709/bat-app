@@ -11,6 +11,7 @@ const DetailsPage = () => {
   const navigate = useNavigate();
   const date = searchParams.get("date");
   const courtId = searchParams.get("courtId")
+  const courtName = searchParams.get("courtName")
   const time = searchParams.get("times");
   const price = searchParams.get("price");
 
@@ -67,6 +68,8 @@ const DetailsPage = () => {
         status: "paid",
         totalPrice : price,
         email: user.email,
+        courtName : courtName ,
+        name : username
       });
 
       console.log("Booking Created:", bookingRes.data);
