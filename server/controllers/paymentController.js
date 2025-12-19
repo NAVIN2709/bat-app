@@ -91,19 +91,16 @@ const paymentWebhook = async (req, res) => {
     const paymentId = data?.payment?.cf_payment_id;
 
     const customerDetails = data?.customer_details;
+    const bookingId = orderId.split("_")[1];
+    console.log(bookingId)
 
     console.log("[Webhook] Order status:", paymentStatus);
     console.log("[Webhook] Order ID:", orderId);
 
     if (paymentStatus == "SUCCESS") {
       console.log("payment success");
-      let bookingId;
-      try {
-        bookingId = JSON.parse(customerDetails?.notes || "{}").bookingId;
-        console.log(bookingId);
-      } catch {
-        return res.status(200).json({ success: true });
-      }
+      console.log(customerDetails)
+      console.log(customerDetails.notes)
 
       const booking = await Booking.findById(bookingId).populate("turf guest");
       console.log(booking, "before updation");
