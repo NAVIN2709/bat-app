@@ -10,7 +10,9 @@ export async function makePayment(bookingInfo) {
         amount: bookingInfo.totalPrice,
         phone: bookingInfo.phone,
         bookingId: bookingInfo.bookingId,
-        guestId : bookingInfo.guestId
+        guestId : bookingInfo.guestId ,
+        name : bookingInfo.name ,
+        email : bookingInfo.email
       }
     );
 

@@ -27,7 +27,7 @@ const sendEmail = async (to, subject, html) => {
 // 1️⃣ Create Cashfree order for an existing PENDING booking
 const createPaymentOrder = async (req, res) => {
   try {
-    const { amount, phone, bookingId, guestId } = req.body;
+    const { amount, phone, bookingId, guestId, name, email } = req.body;
 
     // Ensure booking exists and is still pending
     const booking = await Booking.findById(bookingId).populate("turf guest");
@@ -49,6 +49,8 @@ const createPaymentOrder = async (req, res) => {
       customer_details: {
         customer_id: guestId,
         customer_phone: phone,
+        customer_email: email,
+        customer_name: name,
         // store just bookingId for the webhook to use
         notes: JSON.stringify({ bookingId }),
       },
@@ -80,6 +82,12 @@ const paymentWebhook = async (req, res) => {
       req.headers["x-webhook-timestamp"]
     );
     console.log("[Webhook] Signature verified successfully");
+
+    console.log("[Webhook] Body keys:", Object.keys(req.body));
+    console.log(
+      "[Webhook] Full body (stringified, trimmed):",
+      JSON.stringify(req.body).slice(0, 500)
+    );
 
     const {
       order_status,

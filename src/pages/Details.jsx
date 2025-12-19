@@ -84,7 +84,9 @@ const DetailsPage = () => {
         bookingId,
         totalPrice: price,
         phone: mobile,
-        guestId : user.guestId
+        guestId : user.guestId ,
+        name : username ,
+        email:user.email
       });
 
       if (!paymentResult.success) {
