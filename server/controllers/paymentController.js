@@ -67,7 +67,7 @@ const createPaymentOrder = async (req, res) => {
   }
 };
 
-// 2️⃣ Webhook: Update existing booking from PENDING -> PAID after successful payment
+// 2 Webhook: Update existing booking from PENDING -> PAID after successful payment
 const paymentWebhook = async (req, res) => {
   console.log("[Webhook] Cashfree webhook received");
   try {
@@ -90,20 +90,13 @@ const paymentWebhook = async (req, res) => {
     const paymentStatus = data?.payment?.payment_status; 
     const paymentId = data?.payment?.cf_payment_id;
 
-    const customerDetails = data?.customer_details;
     const bookingId = orderId.split("_")[1];
-    console.log(bookingId)
-
-    console.log("[Webhook] Order status:", paymentStatus);
-    console.log("[Webhook] Order ID:", orderId);
 
     if (paymentStatus == "SUCCESS") {
-      console.log("payment success");
-      console.log(customerDetails)
-      console.log(customerDetails.notes)
+      console.log("payment success")
 
       const booking = await Booking.findById(bookingId).populate("turf guest");
-      console.log(booking, "before updation");
+
       if (!booking || booking.status === "paid") {
         return res.status(200).json({ success: true });
       }
@@ -112,8 +105,7 @@ const paymentWebhook = async (req, res) => {
       booking.totalPrice = orderAmount;
       booking.paymentId = paymentId || orderId;
       await booking.save();
-      console.log(booking, "after updation");
-      console.log("turfs update start");
+
       await Turf.findByIdAndUpdate(booking.turf._id, {
         $push: {
           bookings: {
@@ -124,8 +116,7 @@ const paymentWebhook = async (req, res) => {
           },
         },
       });
-      console.log("turf update ends");
-      console.log("email sending starts");
+
       await sendEmail(
         booking.guest.email,
         "Booking Confirmed",
@@ -139,7 +130,6 @@ const paymentWebhook = async (req, res) => {
         })
       );
     }
-    console.log("email sent");
 
     res.status(200).json({ success: true });
   } catch (err) {
