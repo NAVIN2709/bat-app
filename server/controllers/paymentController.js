@@ -27,7 +27,7 @@ const sendEmail = async (to, subject, html) => {
 // 1️⃣ Create Cashfree order for an existing PENDING booking
 const createPaymentOrder = async (req, res) => {
   try {
-    const { amount, phone, bookingId , guestId} = req.body;
+    const { amount, phone, bookingId, guestId } = req.body;
 
     // Ensure booking exists and is still pending
     const booking = await Booking.findById(bookingId).populate("turf guest");
@@ -67,56 +67,59 @@ const createPaymentOrder = async (req, res) => {
 
 // 2️⃣ Webhook: Update existing booking from PENDING -> PAID after successful payment
 const paymentWebhook = async (req, res) => {
+  console.log("[Webhook] Cashfree webhook received");
   try {
+    if (!req.rawBody) {
+      throw new Error("Raw body missing");
+    }
+    console.log("[Webhook] Raw body present:", !!req.rawBody);
+
     cashfree.PGVerifyWebhookSignature(
       req.headers["x-webhook-signature"],
-      JSON.stringify(req.body),
+      req.rawBody,
       req.headers["x-webhook-timestamp"]
     );
+    console.log("[Webhook] Signature verified successfully");
+    console.log("[Webhook] Order status:", order_status);
+    console.log("[Webhook] Order ID:", order_id);
 
-    const { order_status, customer_details, order_amount, order_id, payment_id } =
-      req.body.data;
+    const {
+      order_status,
+      customer_details,
+      order_amount,
+      order_id,
+      payment_id,
+    } = req.body.data;
 
     if (order_status === "PAID") {
-      // Extract bookingId from notes
-      const { bookingId } = JSON.parse(customer_details.notes);
+      let bookingId;
+      try {
+        bookingId = JSON.parse(customer_details?.notes || "{}").bookingId;
+      } catch {
+        return res.status(200).json({ success: true });
+      }
 
       const booking = await Booking.findById(bookingId).populate("turf guest");
-      if (!booking) {
-        console.log("Booking not found for order:", order_id);
+      if (!booking || booking.status === "paid") {
         return res.status(200).json({ success: true });
       }
 
-      // If already paid, treat webhook as idempotent
-      if (booking.status === "paid") {
-        return res.status(200).json({ success: true });
-      }
-
-      // 1️⃣ Update booking from pending -> paid
       booking.status = "paid";
       booking.totalPrice = order_amount;
       booking.paymentId = payment_id || order_id;
       await booking.save();
-      console.log(booking)
-      console.log(booking.turf._id,booking.slot,booking._id,booking.guest.name,booking.totalPrice,booking.turf.name,booking.date,booking.paymentId)
 
-      // 2️⃣ Update turf slots (booking only added to turf after successful payment)
-      await Turf.findByIdAndUpdate(
-        booking.turf._id,
-        {
-          $push: {
-            bookings: {
-              date: booking.date,
-              slots: booking.slot,
-              bookingId: booking._id,
-              doneBy: "guest",
-            },
+      await Turf.findByIdAndUpdate(booking.turf._id, {
+        $push: {
+          bookings: {
+            date: booking.date,
+            slots: booking.slot,
+            bookingId: booking._id,
+            doneBy: "guest",
           },
         },
-        { new: true }
-      );
+      });
 
-      // 3️⃣ Send confirmation email
       await sendEmail(
         booking.guest.email,
         "Booking Confirmed",
@@ -129,13 +132,11 @@ const paymentWebhook = async (req, res) => {
           courtName: booking.turf.name,
         })
       );
-
-      console.log("Booking created successfully for order:", order_id);
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error("Webhook error:", err.message);
     res.status(400).json({ success: false });
   }
 };

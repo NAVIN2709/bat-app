@@ -24,6 +24,15 @@ app.use(
   })
 );
 
+app.use(
+  "/api/payment/webhook",
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString("utf8");
+    },
+  })
+);
+
 app.use(express.json());
 
 // session middleware (required for passport)
