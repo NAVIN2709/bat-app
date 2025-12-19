@@ -7,6 +7,7 @@ const turfRoutes = require("./routes/turfRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const jwt = require("jsonwebtoken");
 const guestRoutes = require("./routes/guestRoutes")
+const paymentRoutes = require("./routes/paymentRoutes")
 
 dotenv.config();
 connectDB();
@@ -18,7 +19,7 @@ const Guest = require("./models/Guest");
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174","https://batapp-admin.vercel.app","https://bat-app-demo.vercel.app"],
+    origin: "*",
     credentials: true,
   })
 );
@@ -96,9 +97,10 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/turfs", turfRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/guests", guestRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.get("/", (req, res) => {
-  res.send("alive");
+  res.send("alive")
 });
 
 const PORT = process.env.PORT || 5000;

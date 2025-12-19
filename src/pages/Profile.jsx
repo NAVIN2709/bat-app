@@ -92,6 +92,9 @@ const Profile = () => {
                 </p>
               </div>
             ))}
+            {reservations.length==0 && (
+              <div className="nores">No Reservations</div>
+            )}
           </div>
         </div>
       </div>

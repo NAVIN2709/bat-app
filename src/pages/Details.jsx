@@ -4,6 +4,7 @@ import BannerImage from "../assets/logo.jpg";
 import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { makePayment } from "./utils/makePaymentFunction";
 
 const DetailsPage = () => {
   const [searchParams] = useSearchParams();
@@ -31,6 +32,7 @@ const DetailsPage = () => {
   const sendOtp = async () => {
     try {
       setLoading(true);
+      setUsername(user.username)
 
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/request`, {
         name: username,
@@ -54,29 +56,43 @@ const DetailsPage = () => {
       setLoading(true);
 
       // Step 1: Verify OTP
-      const otpRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/verify`, {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/verify`, {
         phone: mobile,
         otp,
       });
 
-      // Step 2: Create Booking (status: paid for now, after payemnt integration route to it)
-      const bookingRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/bookings`, {
-        guestId : user.guestId ,
-        turfId : courtId ,
-        date,
-        slot: time,
-        status: "paid",
-        totalPrice : price,
-        email: user.email,
-        courtName : courtName ,
-        name : username
-      });
-
-      console.log("Booking Created:", bookingRes.data);
+      // Step 2: Create booking (status: pending on backend)
+      const bookingRes = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/bookings`,
+        {
+          guestId: user.guestId,
+          turfId: courtId,
+          date,
+          slot: time,
+          totalPrice: price,
+          email: user.email,
+          courtName: courtName,
+          name: username,
+        }
+      );
 
       const bookingId = bookingRes.data.bookingId;
+      console.log("Booking Created (pending):", bookingRes.data);
 
-      // Step 3: Navigate to confirmation page
+      // Step 3: Start payment for this booking
+      const paymentResult = await makePayment({
+        bookingId,
+        totalPrice: price,
+        phone: mobile,
+        guestId : user.guestId
+      });
+
+      if (!paymentResult.success) {
+        // You may also call an API here to mark booking as cancelled if desired
+        return;
+      }
+
+      // Step 4: Navigate to confirmation page (webhook will set status=paid)
       navigate(`/confirmation/${bookingId}`, {
         state: {
           date,
@@ -139,19 +155,6 @@ const DetailsPage = () => {
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 placeholder="Enter mobile number"
-                className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
-              />
-            </div>
-            <div>
-              <label className="text-sm sm:text-base font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                maxLength="50"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your name"
                 className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
               />
             </div>

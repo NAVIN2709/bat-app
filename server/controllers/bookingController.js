@@ -20,7 +20,7 @@ const sendEmail = async (to, subject, html) => {
   });
 };
 
-// Create booking
+// Create booking (PENDING by default for online payments)
 const createBooking = async (req, res) => {
   const { guestId, turfId, date, slot, totalPrice, email, courtName,name } =
     req.body;
@@ -46,41 +46,13 @@ const createBooking = async (req, res) => {
     date,
     slot,
     totalPrice: totalPrice,
-    status: "paid",
+    status: "pending",
     isDone: false,
   });
   const bookingId = booking._id;
 
-  await Turf.findByIdAndUpdate(
-    turfId,
-    {
-      $push: {
-        bookings: {
-          date: date,
-          slots: slot,
-          bookingId: booking._id,
-          doneBy: "guest",
-        },
-      },
-    },
-    { new: true }
-  );
-
-  await sendEmail(
-    email,
-    "Booking Confirmed",
-    bookingConfirmationEmail({
-      name,
-      date,
-      bookingId,
-      slot,
-      totalPrice,
-      courtName,
-    })
-  );
-
   res.json({
-    message: "Booking created",
+    message: "Booking created, pending payment",
     bookingId: booking._id,
   });
 };
@@ -91,6 +63,10 @@ const confirmBooking = async (req, res) => {
 
   const booking = await Booking.findById(bookingId).populate("guest turf");
   if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+  if (booking.status === "paid") {
+    return res.status(400).json({ message: "Booking already paid" });
+  }
 
   booking.status = "paid";
   booking.paymentId = paymentId;

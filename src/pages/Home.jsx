@@ -6,12 +6,14 @@ import Navbar from "./components/Navbar";
 import axios from "axios";
 
 const Home = () => {
-  const [courts, setCourts] = useState([]);
+  const [courts, setCourts] = useState(null);
 
   useEffect(() => {
     const fetchCourts = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/turfs`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`
+        );
         setCourts(res.data);
       } catch (error) {
         console.error("Error fetching courts:", error);
@@ -35,6 +37,56 @@ const Home = () => {
       behavior: "smooth",
     });
   };
+
+  if (!courts)
+    return (
+      <div className="court">
+        <Navbar />
+        <section className="max-w-7xl mx-auto px-6 md:px-10 mt-10 animate-fadeUp">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-10 md:p-14 shadow-xl border border-green-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              {/* TEXT */}
+              <div className="opacity-0 animate-slideLeft">
+                <h1 className="text-4xl md:text-6xl font-extrabold text-green-700 leading-tight drop-shadow-sm">
+                  Book Courts
+                  <span className="text-green-600 block">
+                    Faster & Smarter.
+                  </span>
+                </h1>
+
+                <p className="text-gray-600 text-lg mt-4">
+                  Discover premium badminton courts near you with instant online
+                  booking.
+                </p>
+
+                <button
+                  onClick={scrollToCourts}
+                  className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
+                         hover:bg-green-700 hover:shadow-xl transition-all duration-300"
+                >
+                  Explore Courts
+                </button>
+              </div>
+
+              {/* BANNER */}
+              <div className="opacity-0 animate-slideRight">
+                <img
+                  src={BannerImage}
+                  alt="banner"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <div className="availablecour max-w-7xl mx-auto px-6 md:px-10 mt-20 mb-16">
+          <h2 className="text-3xl font-bold text-green-700 mb-1 animate-fadeUp">
+            Available Courts
+          </h2>
+          <p className="loading mt-5">Loading Courts ...</p>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-linear-to-b from-green-50 to-white pb-1">

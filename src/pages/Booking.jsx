@@ -109,6 +109,16 @@ const Booking = () => {
     );
   };
 
+  if (!bookedData) return (
+    <div className="loading min-h-screen bg-gray-50 px-4 py-0">
+      <NavBar />
+      <div className="court mt-2">
+        <CourtInfo court={court} />
+      </div>
+      <div className="loading">Loading Data...</div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-0">
       <NavBar />

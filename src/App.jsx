@@ -8,6 +8,7 @@ import DetailsPage from './pages/Details';
 import AuthSuccess from './pages/AuthSuccess';
 import LoginPage from './pages/Login';
 import MembershipPage from './pages/Membership';
+import PoliciesPage from './pages/Policies';
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path='/details/:detailsId' element={<DetailsPage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
         <Route path='/membership' element={<MembershipPage/>}/>
+        <Route path='/policies' element={<PoliciesPage/>}/>
 
     </Routes>
   );
