@@ -80,8 +80,6 @@ const paymentWebhook = async (req, res) => {
       req.headers["x-webhook-timestamp"]
     );
     console.log("[Webhook] Signature verified successfully");
-    console.log("[Webhook] Order status:", order_status);
-    console.log("[Webhook] Order ID:", order_id);
 
     const {
       order_status,
@@ -90,6 +88,8 @@ const paymentWebhook = async (req, res) => {
       order_id,
       payment_id,
     } = req.body.data;
+    console.log("[Webhook] Order status:", order_status);
+    console.log("[Webhook] Order ID:", order_id);
 
     if (order_status === "PAID") {
       let bookingId;
