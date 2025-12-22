@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/Navbar";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { FaGoogle } from "react-icons/fa";
 
 const MembershipPage = () => {
   const [form, setForm] = useState({
@@ -12,6 +14,7 @@ const MembershipPage = () => {
   });
   const [courts, setCourts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const user = jwtDecode(localStorage.getItem("token"));
 
   useEffect(() => {
     const fetchCourts = async () => {
@@ -34,10 +37,69 @@ const MembershipPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+        startDate: form.startDate,
+        slot: form.timeSlot,
+        turfId: form.court,
+        guestId: user.guestId,
+      };
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/membership`,
+        payload
+      );
+
+      alert("Membership application submitted successfully, You will be contacted soon!");
+
+      // Optional: reset form
+      setForm({
+        name: "",
+        phone: "",
+        timeSlot: "",
+        court: "",
+        startDate: "",
+      });
+    } catch (error) {
+      console.error("Error submitting membership:", error);
+      alert(error.response?.data?.message || "Failed to apply for membership");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleGoogleLogin = () => {
+    setLoading(true);
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+  };
+
+  if (!user)
+    return (
+      <div className="return min-h-screen bg-green-50">
+        <NavBar />
+        <div className="text-center mt-12 px-4">
+          <h1 className="text-4xl font-bold text-green-700">Membership</h1>
+          <p className="text-lg font-semibold text-green-500 mt-5">
+            Please Login to apply for memberships
+          </p>
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-xl shadow-lg hover:from-green-500 hover:to-green-600 transition flex items-center justify-center gap-3 mt-5"
+            disabled={loading}
+          >
+            <FaGoogle />
+            {loading ? "Redirecting..." : "Continue with Google"}
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-green-50">

@@ -8,6 +8,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const jwt = require("jsonwebtoken");
 const guestRoutes = require("./routes/guestRoutes")
 const paymentRoutes = require("./routes/paymentRoutes")
+const membershipRoutes = require("./routes/membershipRoutes")
 
 dotenv.config();
 connectDB();
@@ -107,6 +108,7 @@ app.use("/api/turfs", turfRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/guests", guestRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/membership",membershipRoutes)
 
 app.get("/", (req, res) => {
   res.send("alive")
