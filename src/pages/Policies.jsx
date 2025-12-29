@@ -8,85 +8,111 @@ const PoliciesPage = () => {
       <div className="min-h-screen bg-green-50 text-gray-800 p-8 md:p-16">
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
           <h1 className="text-3xl font-bold text-green-700 mb-6">
-            Policies & Terms
+            Privacy Policy
           </h1>
 
-          {/* General Terms */}
+          {/* Introduction */}
           <section className="mb-6">
-            <h2 className="text-xl font-semibold text-green-600 mb-2">
-              1. General Terms
-            </h2>
             <p className="text-gray-700">
-              By using our platform, you agree to comply with our policies and
-              terms. You must provide accurate information and use the service
-              responsibly. The platform reserves the right to modify these terms
-              at any time without prior notice.
+              This Privacy Policy explains how we collect, use, and protect your
+              information when you use our platform. By using our services, you
+              agree to the practices described below.
             </p>
           </section>
 
-          {/* Payment Gateway Policy */}
+          {/* Information We Collect */}
           <section className="mb-6">
             <h2 className="text-xl font-semibold text-green-600 mb-2">
-              2. Payment Gateway Policy
+              1. Information We Collect
             </h2>
             <ul className="list-disc list-inside text-gray-700 space-y-1">
-              <li>
-                All payments are processed securely through authorized payment
-                gateways.
-              </li>
-              <li>We do not store your payment credentials on our servers.</li>
-              <li>
-                Refunds and cancellations are subject to the individual court's
-                policies.
-              </li>
-              <li>
-                Payment confirmations are sent via email after successful
-                transactions.
-              </li>
+              <li>Name, email address, and profile picture (via Google Sign-In)</li>
+              <li>Basic account details required for booking courts</li>
+              <li>Usage data such as login timestamps and booking activity</li>
             </ul>
           </section>
 
-          {/* Authentication & Privacy Policy */}
+          {/* Google OAuth */}
           <section className="mb-6">
             <h2 className="text-xl font-semibold text-green-600 mb-2">
-              3. Authentication & Privacy
-            </h2>
-            <ul className="list-disc list-inside text-gray-700 space-y-1">
-              <li>
-                Users must register with accurate personal information to book
-                courts.
-              </li>
-              <li>
-                Passwords must be kept confidential. We are not responsible for
-                unauthorized access due to weak passwords.
-              </li>
-              <li>
-                We protect your data and never share it with third parties
-                without consent, except as required by law.
-              </li>
-            </ul>
-          </section>
-
-          {/* Liability */}
-          <section className="mb-6">
-            <h2 className="text-xl font-semibold text-green-600 mb-2">
-              4. Liability
+              2. Google Authentication
             </h2>
             <p className="text-gray-700">
-              The platform is not responsible for any injuries, loss, or damages
-              occurring on the booked courts. Users must adhere to safety
-              guidelines and court rules at all times.
+              We use Google OAuth for secure authentication. When you sign in
+              with Google, we only access basic profile information as permitted
+              by Google (such as your name and email address). We do not access
+              your Google password or private Google data.
+            </p>
+          </section>
+
+          {/* How Data Is Used */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold text-green-600 mb-2">
+              3. How We Use Your Information
+            </h2>
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              <li>To create and manage your user account</li>
+              <li>To enable court bookings and related services</li>
+              <li>To improve platform security and user experience</li>
+              <li>To communicate important service updates</li>
+            </ul>
+          </section>
+
+          {/* Data Protection */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold text-green-600 mb-2">
+              4. Data Protection & Security
+            </h2>
+            <p className="text-gray-700">
+              We implement industry-standard security measures to protect your
+              data. Your personal information is stored securely and is never
+              sold or shared with third parties for advertising purposes.
+            </p>
+          </section>
+
+          {/* Third-Party Sharing */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold text-green-600 mb-2">
+              5. Third-Party Data Sharing
+            </h2>
+            <p className="text-gray-700">
+              We do not share your personal data with third parties except when
+              required by law or to comply with legal obligations.
+            </p>
+          </section>
+
+          {/* Data Deletion */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold text-green-600 mb-2">
+              6. Data Retention & Deletion
+            </h2>
+            <p className="text-gray-700">
+              You may request deletion of your account and associated data at
+              any time by contacting us. Upon request, we will permanently
+              delete your personal information unless legally required to
+              retain it.
+            </p>
+          </section>
+
+          {/* Updates */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold text-green-600 mb-2">
+              7. Policy Updates
+            </h2>
+            <p className="text-gray-700">
+              We may update this Privacy Policy from time to time. Any changes
+              will be reflected on this page with an updated revision date.
             </p>
           </section>
 
           {/* Contact */}
           <section>
             <h2 className="text-xl font-semibold text-green-600 mb-2">
-              5. Contact
+              8. Contact Us
             </h2>
             <p className="text-gray-700">
-              For questions regarding our policies, payments, or privacy,
-              contact us at:{" "}
+              If you have any questions about this Privacy Policy or your data,
+              contact us at{" "}
               <span className="font-medium text-green-700">
                 support@example.com
               </span>

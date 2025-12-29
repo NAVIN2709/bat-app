@@ -9,6 +9,7 @@ import AuthSuccess from './pages/AuthSuccess';
 import LoginPage from './pages/Login';
 import MembershipPage from './pages/Membership';
 import PoliciesPage from './pages/Policies';
+import TermsPage from './pages/Terms';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path='/login' element={<LoginPage/>}/>
         <Route path='/membership' element={<MembershipPage/>}/>
         <Route path='/policies' element={<PoliciesPage/>}/>
+        <Route path='/terms' element={<TermsPage/>}/>
 
     </Routes>
   );

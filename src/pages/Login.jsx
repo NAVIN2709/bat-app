@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import BannerImage from "../assets/logo.jpg";
-import {FaGoogle} from "react-icons/fa"
+import { FaGoogle } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
 
 const LoginPage = () => {
@@ -53,6 +53,24 @@ const LoginPage = () => {
             {loading ? "Redirecting..." : "Continue with Google"}
           </button>
         </div>
+        {/* Terms & Privacy */}
+        <p className="mt-6 text-xs sm:text-sm text-gray-500 text-center leading-relaxed">
+          By continuing, you agree to our{" "}
+          <Link
+            to="/terms"
+            className="text-green-600 hover:underline font-medium"
+          >
+            Terms & Conditions
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/policies"
+            className="text-green-600 hover:underline font-medium"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

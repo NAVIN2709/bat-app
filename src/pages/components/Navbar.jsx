@@ -35,10 +35,6 @@ const NavBar = () => {
     window.location.reload();
   };
 
-  const handlePolicies = () =>{
-    navigate("/policies")
-  }
-
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-green-100 shadow-[0_2px_10px_rgba(0,0,0,0.05)] w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
@@ -64,12 +60,6 @@ const NavBar = () => {
             onClick={handleMembership}
           >
             Get Membership
-          </button>
-          <button
-            className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-lg font-semibold transition duration-300 hover:bg-white hover:text-green-600 hover:border hover:border-green-600 hover:scale-105 cursor-pointer"
-            onClick={handlePolicies}
-          >
-            Policies
           </button>
 
           {user ? (
@@ -114,12 +104,6 @@ const NavBar = () => {
             onClick={handleMembership}
           >
             Get Membership
-          </button>
-          <button
-            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-semibold transition duration-300 hover:bg-white hover:text-green-600 hover:border hover:border-green-600 hover:scale-105"
-            onClick={handlePolicies}
-          >
-            Terms & Conditions
           </button>
 
           {user ? (

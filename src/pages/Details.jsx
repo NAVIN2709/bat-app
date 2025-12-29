@@ -8,11 +8,10 @@ import { makePayment } from "./utils/makePaymentFunction";
 
 const DetailsPage = () => {
   const [searchParams] = useSearchParams();
-  const user = jwtDecode(localStorage.getItem("token"));
   const navigate = useNavigate();
   const date = searchParams.get("date");
-  const courtId = searchParams.get("courtId")
-  const courtName = searchParams.get("courtName")
+  const courtId = searchParams.get("courtId");
+  const courtName = searchParams.get("courtName");
   const time = searchParams.get("times");
   const price = searchParams.get("price");
 
@@ -21,24 +20,31 @@ const DetailsPage = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
+    } else {
+      const user = jwtDecode(localStorage.getItem("token"));
+      setUser(user);
     }
-  }, [navigate]);
+  }, []);
 
   const sendOtp = async () => {
     try {
       setLoading(true);
-      setUsername(user.username)
+      setUsername(user.username);
 
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/request`, {
-        name: username,
-        email: user.email,
-        phone: mobile,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/otp/request`,
+        {
+          name: username,
+          email: user.email,
+          phone: mobile,
+        }
+      );
 
       setOtpSent(true);
     } catch (err) {
@@ -84,9 +90,9 @@ const DetailsPage = () => {
         bookingId,
         totalPrice: price,
         phone: mobile,
-        guestId : user.guestId ,
-        name : username ,
-        email:user.email
+        guestId: user.guestId,
+        name: username,
+        email: user.email,
       });
 
       if (!paymentResult.success) {
