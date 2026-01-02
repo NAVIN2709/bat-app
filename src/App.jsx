@@ -29,8 +29,8 @@ const App = () => {
         <Route path='/details/:detailsId' element={<DetailsPage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
         <Route path='/membership' element={<MembershipPage/>}/>
-        <Route path='/policies' element={<PoliciesPage/>}/>
-        <Route path='/terms' element={<TermsPage/>}/>
+        <Route path='/privacy-policy' element={<PoliciesPage/>}/>
+        <Route path='/terms-and-conditions' element={<TermsPage/>}/>
 
     </Routes>
   );

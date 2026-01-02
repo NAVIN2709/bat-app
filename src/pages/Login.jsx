@@ -57,14 +57,14 @@ const LoginPage = () => {
         <p className="mt-6 text-xs sm:text-sm text-gray-500 text-center leading-relaxed">
           By continuing, you agree to our{" "}
           <Link
-            to="/terms"
+            to="/terms-and-conditions"
             className="text-green-600 hover:underline font-medium"
           >
             Terms & Conditions
           </Link>{" "}
           and{" "}
           <Link
-            to="/policies"
+            to="/privacy-policy"
             className="text-green-600 hover:underline font-medium"
           >
             Privacy Policy

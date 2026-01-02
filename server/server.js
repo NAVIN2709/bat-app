@@ -20,7 +20,7 @@ const Guest = require("./models/Guest");
 const app = express();
 app.use(
   cors({
-    origin: "*",
+    origin: [process.env.FRONTEND_URL,"https://admin.kavikanna.com"],
     credentials: true,
   })
 );
