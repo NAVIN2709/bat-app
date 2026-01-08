@@ -13,7 +13,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Request OTP
 const sendEmail = async (to, subject, html) => {
   return await resend.emails.send({
-    from: "Your App <onboarding@resend.dev>",
+    from: "Your App <onboarding@kavikanna.com>",
     to,
     subject,
     html,
