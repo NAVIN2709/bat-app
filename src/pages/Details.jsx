@@ -29,6 +29,7 @@ const DetailsPage = () => {
     } else {
       const user = jwtDecode(localStorage.getItem("token"));
       setUser(user);
+      setUsername(user.name);
     }
   }, []);
 
@@ -123,6 +124,22 @@ const DetailsPage = () => {
       return alert("Enter a valid 10-digit mobile number");
     sendOtp();
   };
+   
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-green-50 to-green-100 flex flex-col items-center justify-start sm:justify-center px-4 py-10 sm:py-16">
+      {/* Banner */}
+      <div className="w-48 sm:w-56 mb-10">
+        <img
+          src={BannerImage}
+          alt="Court Banner"
+          className="w-full rounded-2xl shadow-xl border-2 border-green-200"
+        />
+      </div>
+      <div className="loading text-2xl font-bold">Loading ...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-green-50 to-green-100 flex flex-col items-center justify-start sm:justify-center px-4 py-10 sm:py-16">
@@ -155,6 +172,19 @@ const DetailsPage = () => {
           <div className="space-y-6">
             <div>
               <label className="text-sm sm:text-base font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm sm:text-base font-medium text-gray-700">
                 Mobile Number
               </label>
               <input
@@ -179,7 +209,7 @@ const DetailsPage = () => {
         {otpSent && (
           <div className="space-y-6">
             <p className="text-center text-gray-600 sm:text-base">
-              OTP sent to <b>{mobile}</b>
+              OTP sent to <b>{user.email}</b>
             </p>
 
             <input
