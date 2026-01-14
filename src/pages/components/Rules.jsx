@@ -2,12 +2,11 @@ import React from 'react';
 
 const Rules = () => {
   const rules = [
-    'Maximum 8 members per court',
     'Non-marking shoes only',
     'Keep the court clean',
-    'No food or drinks on the court',
-    'Respect other players',
-    'Use only shuttle provided',
+    'Rackets/shuttlecocks shall be used with your own responsibility',
+    'Lights and fans shall be turned off when not in use',
+    'Maximum 8 players are allowed to play in a booked slot',
   ];
 
   return (

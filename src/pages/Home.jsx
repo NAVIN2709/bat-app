@@ -107,11 +107,26 @@ const Home = () => {
                 Discover premium badminton courts near you with instant online
                 booking.
               </p>
+              <p className="text-gray-600 text-base mt-4">
+                Contact :{" "}
+                <a
+                  href="tel:9600614215"
+                  className="text-blue-600 hover:underline"
+                >
+                  9600614215
+                </a>{" "}
+                <a
+                  href="tel:9952608689"
+                  className="text-blue-600 hover:underline ml-2"
+                >
+                  9952608689
+                </a>
+              </p>
 
               <button
                 onClick={scrollToCourts}
                 className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
-                         hover:bg-green-700 hover:shadow-xl transition-all duration-300"
+                         hover:bg-green-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 Explore Courts
               </button>
