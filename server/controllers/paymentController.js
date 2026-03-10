@@ -17,7 +17,7 @@ const razorpay = new Razorpay({
 
 const sendEmail = async (to, subject, html) => {
   return await resend.emails.send({
-    from: "Your App <onboarding@kavikanna.com>",
+    from: "KaviKanna <onboarding@kavikanna.com>",
     to,
     subject,
     html,
