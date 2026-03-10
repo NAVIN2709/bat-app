@@ -1,19 +1,19 @@
-const { Cashfree, CFEnvironment } = require("cashfree-pg");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 const Booking = require("../models/Booking");
 const Turf = require("../models/Turf");
 const {
   bookingConfirmationEmail,
 } = require("../utils/bookingConfirmationEmail");
 const { Resend } = require("resend");
-const dotenv = require("dotenv");
-dotenv.config();
+require("dotenv").config();
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const cashfree = new Cashfree(
-  CFEnvironment.SANDBOX,
-  process.env.APP_ID,
-  process.env.SECRET_KEY
-);
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const sendEmail = async (to, subject, html) => {
   return await resend.emails.send({
@@ -24,111 +24,127 @@ const sendEmail = async (to, subject, html) => {
   });
 };
 
-// 1️⃣ Create Cashfree order for an existing PENDING booking
+////////////////////////////////////////////////////////////
+// 1️⃣ CREATE RAZORPAY ORDER
+////////////////////////////////////////////////////////////
+
 const createPaymentOrder = async (req, res) => {
   try {
-    const { amount, phone, bookingId, guestId, name, email } = req.body;
+    const { amount, bookingId } = req.body;
 
-    // Ensure booking exists and is still pending
     const booking = await Booking.findById(bookingId).populate("turf guest");
+
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
     if (booking.status === "paid") {
-      return res
-        .status(400)
-        .json({ message: "Booking already paid for this order" });
+      return res.status(400).json({ message: "Already paid" });
     }
 
-    const orderRequest = {
-      // Tie the order id to the booking id for easier debug/idempotency
-      order_id: `BOOK_${bookingId}_${Date.now()}`,
-      order_amount: amount,
-      order_currency: "INR",
-      customer_details: {
-        customer_id: guestId,
-        customer_phone: phone,
-        customer_email: email,
-        customer_name: name,
-        // store just bookingId for the webhook to use
-        notes: JSON.stringify({ bookingId }),
-      },
-      order_meta: {
-        notify_url: `${process.env.BACKEND_URL}/api/payment/webhook`,
-      },
-    };
+    const order = await razorpay.orders.create({
+      amount: amount * 100, // convert to paise
+      currency: "INR",
+      receipt: `BOOK_${bookingId}`,
+    });
 
-    const response = await cashfree.PGCreateOrder(orderRequest);
-    res.json(response.data);
+    res.json(order);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Payment order creation failed" });
+    res.status(500).json({ message: "Razorpay order creation failed" });
   }
 };
 
-// 2 Webhook: Update existing booking from PENDING -> PAID after successful payment
-const paymentWebhook = async (req, res) => {
-  console.log("[Webhook] Cashfree webhook received");
+////////////////////////////////////////////////////////////
+// 2️⃣ VERIFY PAYMENT (from frontend handler)
+////////////////////////////////////////////////////////////
+
+const verifyPayment = async (req, res) => {
   try {
-    if (!req.rawBody) {
-      throw new Error("Raw body missing");
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      bookingId,
+      amount,
+    } = req.body;
+
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false });
     }
 
-    cashfree.PGVerifyWebhookSignature(
-      req.headers["x-webhook-signature"],
-      req.rawBody,
-      req.headers["x-webhook-timestamp"]
-    );
-    console.log("[Webhook] Signature verified successfully");
+    const booking = await Booking.findById(bookingId).populate("turf guest");
 
-    const data = req.body.data;
+    if (!booking || booking.status === "paid") {
+      return res.json({ success: true });
+    }
 
-    const orderId = data?.order?.order_id;
-    const orderAmount = data?.order?.order_amount;
+    booking.status = "paid";
+    booking.totalPrice = amount;
+    booking.paymentId = razorpay_payment_id;
+    await booking.save();
 
-    const paymentStatus = data?.payment?.payment_status; 
-    const paymentId = data?.payment?.cf_payment_id;
-
-    const bookingId = orderId.split("_")[1];
-
-    if (paymentStatus == "SUCCESS") {
-      console.log("payment success")
-
-      const booking = await Booking.findById(bookingId).populate("turf guest");
-
-      if (!booking || booking.status === "paid") {
-        return res.status(200).json({ success: true });
-      }
-
-      booking.status = "paid";
-      booking.totalPrice = orderAmount;
-      booking.paymentId = paymentId || orderId;
-      await booking.save();
-
-      await Turf.findByIdAndUpdate(booking.turf._id, {
-        $push: {
-          bookings: {
-            date: booking.date,
-            slots: booking.slot,
-            bookingId: booking._id,
-            doneBy: "guest",
-          },
-        },
-      });
-
-      await sendEmail(
-        booking.guest.email,
-        "Booking Confirmed",
-        bookingConfirmationEmail({
-          name: booking.guest.name,
+    await Turf.findByIdAndUpdate(booking.turf._id, {
+      $push: {
+        bookings: {
           date: booking.date,
+          slots: booking.slot,
           bookingId: booking._id,
-          slot: booking.slot,
-          totalPrice: booking.totalPrice,
-          courtName: booking.turf.name,
-        })
-      );
+          doneBy: "guest",
+        },
+      },
+    });
+
+    await sendEmail(
+      booking.guest.email,
+      "Booking Confirmed",
+      bookingConfirmationEmail({
+        name: booking.guest.name,
+        date: booking.date,
+        bookingId: booking._id,
+        slot: booking.slot,
+        totalPrice: booking.totalPrice,
+        courtName: booking.turf.name,
+      })
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+};
+
+////////////////////////////////////////////////////////////
+// 3️⃣ WEBHOOK (IMPORTANT FOR PRODUCTION SAFETY)
+////////////////////////////////////////////////////////////
+
+const paymentWebhook = async (req, res) => {
+  try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+    const signature = req.headers["x-razorpay-signature"];
+
+    const expectedSignature = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return res.status(400).send("Invalid signature");
+    }
+
+    const event = req.body;
+
+    if (event.event === "payment.captured") {
+      console.log("Payment captured via webhook");
     }
 
     res.status(200).json({ success: true });
@@ -138,4 +154,8 @@ const paymentWebhook = async (req, res) => {
   }
 };
 
-module.exports = { paymentWebhook, createPaymentOrder };
+module.exports = {
+  createPaymentOrder,
+  verifyPayment,
+  paymentWebhook,
+};
