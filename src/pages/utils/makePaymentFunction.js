@@ -1,43 +1,59 @@
 import axios from "axios";
 
-// bookingInfo = { bookingId, totalPrice, phone }
 export async function makePayment(bookingInfo) {
   try {
-    // 1️⃣ Create payment order for existing pending booking
+    // 1️⃣ Create Razorpay order
     const { data } = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/payment/create-order`,
       {
         amount: bookingInfo.totalPrice,
-        phone: bookingInfo.phone,
         bookingId: bookingInfo.bookingId,
-        guestId : bookingInfo.guestId ,
-        name : bookingInfo.name ,
-        email : bookingInfo.email
       }
     );
 
-    // 2️⃣ Open Cashfree checkout (Web SDK v3)
-    if (!window.Cashfree) {
-      console.error("Cashfree SDK not loaded");
-      alert("Payment system is not ready. Please try again.");
-      return { success: false };
-    }
+    // 2️⃣ Load Razorpay script
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-    const cashfree = window.Cashfree({
-      mode: "sandbox", // or "production"
-    });
-    const result = await cashfree.checkout({
-      paymentSessionId: data.payment_session_id,
-      redirectTarget: "_modal",
-    });
+    await new Promise((resolve) => (script.onload = resolve));
 
-    if (result.error) {
-      alert("Payment cancelled or failed");
-      return { success: false };
-    }
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: data.amount,
+      currency: "INR",
+      order_id: data.id,
+      name: "KaviKanna Turf",
+      handler: async function (response) {
+        const verifyRes = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify-payment`,
+          {
+            ...response,
+            bookingId: bookingInfo.bookingId,
+            amount: bookingInfo.totalPrice,
+          }
+        );
 
-    // 3️⃣ Payment success → backend webhook will mark booking as paid
-    alert("Payment success! Booking will be confirmed via email.");
+        if (verifyRes.data.success) {
+          alert("Payment successful!");
+        } else {
+          alert("Payment verification failed");
+        }
+      },
+      prefill: {
+        name: bookingInfo.name,
+        email: bookingInfo.email,
+        contact: bookingInfo.phone,
+      },
+      theme: {
+        color: "#22c55e",
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+
     return { success: true };
   } catch (err) {
     console.error(err);
