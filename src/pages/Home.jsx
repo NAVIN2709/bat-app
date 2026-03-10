@@ -12,7 +12,7 @@ const Home = () => {
     const fetchCourts = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`
+          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`,
         );
         setCourts(res.data);
       } catch (error) {
@@ -121,6 +121,14 @@ const Home = () => {
                 >
                   9952608689
                 </a>
+                <p className="text-sm text-gray-500 mt-3">
+                  <a
+                    href="/privacy-policy"
+                    className="hover:underline text-green-700"
+                  >
+                    Privacy Policy
+                  </a>
+                </p>
               </p>
 
               <button
