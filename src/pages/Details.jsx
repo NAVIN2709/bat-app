@@ -84,6 +84,7 @@ const DetailsPage = () => {
       );
 
       const bookingId = bookingRes.data.bookingId;
+      console.log("Booking Created (pending):", bookingRes.data);
 
       // Step 3: Start payment for this booking
       const paymentResult = await makePayment({
@@ -96,9 +97,11 @@ const DetailsPage = () => {
       });
 
       if (!paymentResult.success) {
-        return alert("Payment failed. Please try again.");
+        // You may also call an API here to mark booking as cancelled if desired
+        return;
       }
 
+      // Step 4: Navigate to confirmation page (webhook will set status=paid)
       navigate(`/confirmation/${bookingId}`, {
         state: {
           date,
