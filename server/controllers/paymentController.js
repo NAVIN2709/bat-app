@@ -85,10 +85,16 @@ const verifyPayment = async (req, res) => {
 
     const booking = await Booking.findById(bookingId).populate("turf guest");
 
-    if (!booking || booking.status === "paid") {
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    // Idempotency check: If Webhook already fulfilled it, return success
+    if (booking.status === "paid") {
       return res.json({ success: true });
     }
 
+    // 1️⃣ Fast-path Fulfillment 
     booking.status = "paid";
     booking.totalPrice = amount;
     booking.paymentId = razorpay_payment_id;
@@ -105,22 +111,26 @@ const verifyPayment = async (req, res) => {
       },
     });
 
-    await sendEmail(
-      booking.guest.email,
-      "Booking Confirmed",
-      bookingConfirmationEmail({
-        name: booking.guest.name,
-        date: booking.date,
-        bookingId: booking._id,
-        slot: booking.slot,
-        totalPrice: booking.totalPrice,
-        courtName: booking.turf.name,
-      })
-    );
+    try {
+      await sendEmail(
+        booking.guest.email,
+        "Booking Confirmed",
+        bookingConfirmationEmail({
+          name: booking.guest.name,
+          date: booking.date,
+          bookingId: booking._id,
+          slot: booking.slot,
+          totalPrice: booking.totalPrice,
+          courtName: booking.turf.name,
+        })
+      );
+    } catch (err) {
+      console.error("Failed to send confirmation email on verify-payment:", err.message);
+    }
 
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("verifyPayment Error:", err);
     res.status(500).json({ success: false });
   }
 };
@@ -148,11 +158,11 @@ const paymentWebhook = async (req, res) => {
     const event = req.body;
 
     if (event.event === "payment.captured" || event.event === "order.paid") {
-      const paymentEntity = event.payload.payment.entity;
+      const paymentEntity = event.payload.payment ? event.payload.payment.entity : null;
       const orderEntity = event.payload.order ? event.payload.order.entity : paymentEntity;
       
-      const bookingId = orderEntity.notes.bookingId;
-      const amount = paymentEntity.amount / 100; // Convert paise back to INR
+      const bookingId = orderEntity?.notes?.bookingId;
+      const amount = paymentEntity ? paymentEntity.amount / 100 : 0;
 
       if (!bookingId) {
          console.warn("Webhook received payment without bookingId in notes");
@@ -161,14 +171,15 @@ const paymentWebhook = async (req, res) => {
 
       const booking = await Booking.findById(bookingId).populate("turf guest");
 
-      // Idempotency: If already paid, safely ignore and return 200 OK
+      // Idempotency: If verifyPayment already fulfilled it, gracefully exit
       if (!booking || booking.status === "paid") {
         return res.status(200).json({ success: true });
       }
 
+      // 2️⃣ Fallback Fulfillment (If frontend verifyPayment failed)
       booking.status = "paid";
       booking.totalPrice = amount;
-      booking.paymentId = paymentEntity.id;
+      booking.paymentId = paymentEntity ? paymentEntity.id : "unknown";
       await booking.save();
 
       await Turf.findByIdAndUpdate(booking.turf._id, {
@@ -182,25 +193,29 @@ const paymentWebhook = async (req, res) => {
         },
       });
 
-      await sendEmail(
-        booking.guest.email,
-        "Booking Confirmed",
-        bookingConfirmationEmail({
-          name: booking.guest.name,
-          date: booking.date,
-          bookingId: booking._id,
-          slot: booking.slot,
-          totalPrice: booking.totalPrice,
-          courtName: booking.turf.name,
-        })
-      );
+      try {
+        await sendEmail(
+          booking.guest.email,
+          "Booking Confirmed",
+          bookingConfirmationEmail({
+            name: booking.guest.name,
+            date: booking.date,
+            bookingId: booking._id,
+            slot: booking.slot,
+            totalPrice: booking.totalPrice,
+            courtName: booking.turf.name,
+          })
+        );
+      } catch (emailErr) {
+        console.error("Failed to send webhook email:", emailErr.message);
+      }
 
-      console.log(`Payment fulfillment complete for booking ${bookingId} via webhook`);
+      console.log(`Payment fulfillment complete for booking ${bookingId} via webhook fallback`);
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Webhook error:", err.message);
+    console.error("Webhook error encountered:", err.message);
     res.status(400).json({ success: false });
   }
 };
