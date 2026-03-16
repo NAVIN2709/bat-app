@@ -46,6 +46,9 @@ const createPaymentOrder = async (req, res) => {
       amount: amount * 100, // convert to paise
       currency: "INR",
       receipt: `BOOK_${bookingId}`,
+      notes: {
+        bookingId: bookingId,
+      },
     });
 
     res.json(order);
@@ -132,9 +135,10 @@ const paymentWebhook = async (req, res) => {
 
     const signature = req.headers["x-razorpay-signature"];
 
+    // ✅ Fix: Use req.rawBody instead of JSON.stringify(req.body)
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
-      .update(JSON.stringify(req.body))
+      .update(req.rawBody)
       .digest("hex");
 
     if (signature !== expectedSignature) {
@@ -143,8 +147,55 @@ const paymentWebhook = async (req, res) => {
 
     const event = req.body;
 
-    if (event.event === "payment.captured") {
-      console.log("Payment captured via webhook");
+    if (event.event === "payment.captured" || event.event === "order.paid") {
+      const paymentEntity = event.payload.payment.entity;
+      const orderEntity = event.payload.order ? event.payload.order.entity : paymentEntity;
+      
+      const bookingId = orderEntity.notes.bookingId;
+      const amount = paymentEntity.amount / 100; // Convert paise back to INR
+
+      if (!bookingId) {
+         console.warn("Webhook received payment without bookingId in notes");
+         return res.status(200).json({ success: true });
+      }
+
+      const booking = await Booking.findById(bookingId).populate("turf guest");
+
+      // Idempotency: If already paid, safely ignore and return 200 OK
+      if (!booking || booking.status === "paid") {
+        return res.status(200).json({ success: true });
+      }
+
+      booking.status = "paid";
+      booking.totalPrice = amount;
+      booking.paymentId = paymentEntity.id;
+      await booking.save();
+
+      await Turf.findByIdAndUpdate(booking.turf._id, {
+        $push: {
+          bookings: {
+            date: booking.date,
+            slots: booking.slot,
+            bookingId: booking._id,
+            doneBy: "guest",
+          },
+        },
+      });
+
+      await sendEmail(
+        booking.guest.email,
+        "Booking Confirmed",
+        bookingConfirmationEmail({
+          name: booking.guest.name,
+          date: booking.date,
+          bookingId: booking._id,
+          slot: booking.slot,
+          totalPrice: booking.totalPrice,
+          courtName: booking.turf.name,
+        })
+      );
+
+      console.log(`Payment fulfillment complete for booking ${bookingId} via webhook`);
     }
 
     res.status(200).json({ success: true });
