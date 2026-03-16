@@ -44,7 +44,7 @@ const DetailsPage = () => {
           name: username,
           email: user.email,
           phone: mobile,
-        },
+        }
       );
 
       setOtpSent(true);
@@ -80,7 +80,7 @@ const DetailsPage = () => {
           email: user.email,
           courtName: courtName,
           name: username,
-        },
+        }
       );
 
       const bookingId = bookingRes.data.bookingId;
@@ -96,15 +96,17 @@ const DetailsPage = () => {
       });
 
       if (!paymentResult.success) {
-        navigate(`/confirmation/${bookingId}`, {
-          state: {
-            date,
-            time,
-            price,
-            name: username,
-          },
-        });
+        return alert("Payment failed. Please try again.");
       }
+
+      navigate(`/confirmation/${bookingId}`, {
+        state: {
+          date,
+          time,
+          price,
+          name: username,
+        },
+      });
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert(err.response?.data?.message || "OTP verification failed");
@@ -119,21 +121,21 @@ const DetailsPage = () => {
       return alert("Enter a valid 10-digit mobile number");
     sendOtp();
   };
-
+   
   if (!user) {
     return (
       <div className="min-h-screen bg-linear-to-br from-green-50 to-green-100 flex flex-col items-center justify-start sm:justify-center px-4 py-10 sm:py-16">
-        {/* Banner */}
-        <div className="w-48 sm:w-56 mb-10">
-          <img
-            src={BannerImage}
-            alt="Court Banner"
-            className="w-full rounded-2xl shadow-xl border-2 border-green-200"
-          />
-        </div>
-        <div className="loading text-2xl font-bold">Loading ...</div>
+      {/* Banner */}
+      <div className="w-48 sm:w-56 mb-10">
+        <img
+          src={BannerImage}
+          alt="Court Banner"
+          className="w-full rounded-2xl shadow-xl border-2 border-green-200"
+        />
       </div>
-    );
+      <div className="loading text-2xl font-bold">Loading ...</div>
+      </div>
+    )
   }
 
   return (
