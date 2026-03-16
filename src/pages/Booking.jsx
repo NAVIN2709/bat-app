@@ -65,21 +65,33 @@ const Booking = () => {
     const availabilityMap = {};
 
     bookedData.forEach((b) => {
-      let bookedCount = 0;
-      if (b.date == selectedDate) {
-        b.slots.forEach((bookedTime) => {
+      // API returns slots like: { slots: ["06:00-07:00,07:00-08:00"] }
+      const bookedTimesStr = b.slots[0] || "";
+      const bookedTimesArray = bookedTimesStr.split(",").map(t => t.trim()).filter(Boolean);
+      
+      let bookedCount = bookedTimesArray.length;
+
+      // If viewing the booked date, disable specific slot times
+      if (b.date === selectedDate) {
+        bookedTimesArray.forEach((bookedTime) => {
           updatedSlots.forEach((s) => {
-            if (s.time == bookedTime) {
+            if (s.time === bookedTime) {
               s.booked = true;
             }
           });
         });
       }
 
-      // count booked slots for this date
-      b.slots.length == 17
-        ? (availabilityMap[b.date] = false)
-        : (availabilityMap[b.date] = true);
+      // If all 11 slots are booked, mark the calendar day as NOT AVAILABLE (Red)
+      if (bookedCount >= BASE_SLOTS.length) {
+        availabilityMap[b.date] = false; 
+      } else {
+        // By default, the calendar generates all missing dates as available (true).
+        // If it's partially booked, it stays available (green).
+        if (availabilityMap[b.date] !== false) {
+           availabilityMap[b.date] = true;
+        }
+      }
     });
 
     setSlots(updatedSlots);
