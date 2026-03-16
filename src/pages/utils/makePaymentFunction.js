@@ -24,7 +24,7 @@ export async function makePayment(bookingInfo) {
       amount: data.amount,
       currency: "INR",
       order_id: data.id,
-      name: "KaviKanna Turf",
+      name: "KaviKanna Badminton Court",
       handler: async function (response) {
         const verifyRes = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify-payment`,
