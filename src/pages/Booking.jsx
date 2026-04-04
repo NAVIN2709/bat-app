@@ -7,6 +7,9 @@ import TimeCarousel from "./components/TimeCarousel";
 import NavBar from "./components/Navbar";
 import axios from "axios";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const Booking = () => {
   const location = useLocation();
@@ -25,7 +28,7 @@ const Booking = () => {
     { time: "20:00-21:00" },
   ];
   const [selectedDate, setSelectedDate] = useState(
-    dayjs().format("YYYY-MM-DD")
+    dayjs().format("DD-MM-YYYY"),
   );
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [bookedData, setBookedData] = useState([]);
@@ -39,7 +42,7 @@ const Booking = () => {
     const fetchTimings = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/turfs/court-timings/${id}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/turfs/court-timings/${id}`,
         );
 
         setBookedData(res.data.bookings.bookings);
@@ -67,8 +70,11 @@ const Booking = () => {
     bookedData.forEach((b) => {
       // API returns slots like: { slots: ["06:00-07:00,07:00-08:00"] }
       const bookedTimesStr = b.slots[0] || "";
-      const bookedTimesArray = bookedTimesStr.split(",").map(t => t.trim()).filter(Boolean);
-      
+      const bookedTimesArray = bookedTimesStr
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
       let bookedCount = bookedTimesArray.length;
 
       // If viewing the booked date, disable specific slot times
@@ -84,19 +90,19 @@ const Booking = () => {
 
       // If all 11 slots are booked, mark the calendar day as NOT AVAILABLE (Red)
       if (bookedCount >= BASE_SLOTS.length) {
-        availabilityMap[b.date] = false; 
+        availabilityMap[b.date] = false;
       } else {
         // By default, the calendar generates all missing dates as available (true).
         // If it's partially booked, it stays available (green).
         if (availabilityMap[b.date] !== false) {
-           availabilityMap[b.date] = true;
+          availabilityMap[b.date] = true;
         }
       }
     });
 
     setSlots(updatedSlots);
     setAvailability(availabilityMap);
-  }, [selectedDate,bookedData]);
+  }, [selectedDate, bookedData]);
 
   const court = {
     id: id,
@@ -112,19 +118,20 @@ const Booking = () => {
     const timeQuery = encodeURIComponent(selectedSlots.join(","));
 
     navigate(
-      `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}&courtName=${court.name}`
+      `/details/${court.id}?courtId=${court.id}&date=${selectedDate}&times=${timeQuery}&price=${calculatedPrice}&courtName=${court.name}`,
     );
   };
 
-  if (!bookedData) return (
-    <div className="loading min-h-screen bg-gray-50 px-4 py-0">
-      <NavBar />
-      <div className="court mt-2">
-        <CourtInfo court={court} />
+  if (!bookedData)
+    return (
+      <div className="loading min-h-screen bg-gray-50 px-4 py-0">
+        <NavBar />
+        <div className="court mt-2">
+          <CourtInfo court={court} />
+        </div>
+        <div className="loading">Loading Data...</div>
       </div>
-      <div className="loading">Loading Data...</div>
-    </div>
-  )
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-0">
@@ -159,7 +166,7 @@ const Booking = () => {
         <button
           onClick={handleConfirm}
           disabled={selectedSlots.length === 0}
-          className={`px-6 py-3 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 ${selectedSlots.length === 0 ? 'opacity-50 cursor-not-allowed' : ''} transition-all duration-300`}
+          className={`px-6 py-3 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 ${selectedSlots.length === 0 ? "opacity-50 cursor-not-allowed" : ""} transition-all duration-300`}
         >
           Confirm & Pay
         </button>

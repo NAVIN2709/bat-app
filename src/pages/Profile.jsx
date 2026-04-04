@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "./components/Navbar";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const Profile = () => {
   const [reservations, setReservations] = useState([]);
@@ -79,7 +87,7 @@ const Profile = () => {
                   <span className="font-semibold">BookingId:</span> {r._id}
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-semibold">Date:</span> {r.date}
+                  <span className="font-semibold">Date:</span> {dayjs(r.date, ["DD-MM-YYYY", "YYYY-MM-DD"]).format("DD-MM-YYYY")}
                 </p>
                 <p className="text-gray-700">
                   <span className="font-semibold">Time:</span> {r.slot}

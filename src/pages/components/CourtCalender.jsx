@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { ArrowBigRightIcon, ArrowBigLeft } from "lucide-react";
+
+dayjs.extend(customParseFormat);
 
 const CourtCalendar = ({
   availability = {},
@@ -22,7 +25,7 @@ const CourtCalendar = ({
     for (let i = 0; i < leadingEmptyDays; i++) days.push(null);
 
     for (let d = 1; d <= endOfMonth.date(); d++) {
-      const dateString = month.date(d).format("YYYY-MM-DD");
+      const dateString = month.date(d).format("DD-MM-YYYY");
       days.push(dateString);
     }
 
