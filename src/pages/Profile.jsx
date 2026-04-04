@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "./components/Navbar";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-
-dayjs.extend(customParseFormat);
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
