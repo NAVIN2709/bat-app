@@ -175,7 +175,7 @@ function bookingConfirmationEmail({
           font-weight:600;
           margin:0 0 20px;
           color:#374151;
-        ">Court Guidelines</h3>
+        ">Our Rules</h3>
 
         <div style="padding:6px 0; color:#6b7280; font-size:14px; line-height:1.6;">
           • Maximum 8 members per court
@@ -187,13 +187,13 @@ function bookingConfirmationEmail({
           • Keep the court clean
         </div>
         <div style="padding:6px 0; color:#6b7280; font-size:14px; line-height:1.6;">
-          • No food or drinks on the court
+          • Rackets/shuttlecocks shall be used with your own responsibility
         </div>
         <div style="padding:6px 0; color:#6b7280; font-size:14px; line-height:1.6;">
           • Respect other players
         </div>
         <div style="padding:6px 0; color:#6b7280; font-size:14px; line-height:1.6;">
-          • Use only shuttles provided
+          • Lights and fans shall be turned off when not in use
         </div>
 
       </div>

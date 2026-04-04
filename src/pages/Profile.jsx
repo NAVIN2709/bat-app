@@ -7,16 +7,25 @@ import axios from "axios";
 
 const Profile = () => {
   const [reservations, setReservations] = useState([]);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
   };
-  const user = jwtDecode(localStorage.getItem("token"));
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
+        const user = jwtDecode(localStorage.getItem("token"));
+        setUser(user);
+        setLoading(true);
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/${user.guestId}`);
         setReservations(res.data.bookings);
       } catch (err) {

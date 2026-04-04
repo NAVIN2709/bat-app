@@ -14,6 +14,8 @@ const Home = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/turfs`,
         );
+        const returnTo = localStorage.getItem("returnTo") || "/";
+        console.log(returnTo);
         setCourts(res.data);
       } catch (error) {
         console.error("Error fetching courts:", error);
@@ -107,7 +109,7 @@ const Home = () => {
                 Discover premium badminton courts near you with instant online
                 booking.
               </p>
-              <p className="text-gray-600 text-base mt-4">
+              <div className="text-gray-600 text-base mt-4">
                 Contact :{" "}
                 <a
                   href="tel:9600614215"
@@ -129,7 +131,7 @@ const Home = () => {
                     Privacy Policy
                   </a>
                 </p>
-              </p>
+              </div>
 
               <button
                 onClick={scrollToCourts}

@@ -158,7 +158,8 @@ const Booking = () => {
       <div className="flex justify-center mt-4 pb-4">
         <button
           onClick={handleConfirm}
-          className="px-6 py-3 bg-green-600 text-white rounded-xl shadow hover:bg-green-700"
+          disabled={selectedSlots.length === 0}
+          className={`px-6 py-3 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 ${selectedSlots.length === 0 ? 'opacity-50 cursor-not-allowed' : ''} transition-all duration-300`}
         >
           Confirm & Pay
         </button>

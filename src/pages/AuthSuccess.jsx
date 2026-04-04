@@ -7,10 +7,12 @@ const AuthSuccess = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const returnTo = localStorage.getItem("returnTo") || "/";
 
     if (token) {
       localStorage.setItem("token", token);
-      navigate("/");
+      localStorage.removeItem("returnTo"); // Cleanup logic
+      navigate(returnTo);
     } else {
       navigate("/");
     }
