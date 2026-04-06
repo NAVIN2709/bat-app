@@ -45,14 +45,11 @@ const DetailsPage = () => {
     try {
       setLoading(true);
 
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/otp/request`,
-        {
-          name: username,
-          email: user.email,
-          phone: mobile,
-        }
-      );
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/request`, {
+        name: username,
+        email: user.email,
+        phone: mobile,
+      });
 
       setOtpSent(true);
     } catch (err) {
@@ -67,13 +64,10 @@ const DetailsPage = () => {
       setLoading(true);
 
       // 1️⃣ Verify OTP
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/otp/verify`,
-        {
-          phone: mobile,
-          otp,
-        }
-      );
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/otp/verify`, {
+        phone: mobile,
+        otp,
+      });
 
       // 2️⃣ Create booking
       const bookingRes = await axios.post(
@@ -87,7 +81,7 @@ const DetailsPage = () => {
           email: user.email,
           courtName,
           name: username,
-        }
+        },
       );
 
       const bookingId = bookingRes.data.bookingId;
@@ -118,7 +112,6 @@ const DetailsPage = () => {
           navigate("/");
         }, 2500);
       }
-
     } catch (err) {
       alert(err.response?.data?.message || "OTP verification failed");
     } finally {
@@ -132,51 +125,120 @@ const DetailsPage = () => {
     }
     sendOtp();
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
-  if (!user) return <div>Loading...</div>;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-green-50 to-green-100 flex flex-col items-center justify-start sm:justify-center px-4 py-10 sm:py-16">
+        {/* Banner */}
+        <div className="w-48 sm:w-56 mb-10">
+          <img
+            src={BannerImage}
+            alt="Court Banner"
+            className="w-full rounded-2xl shadow-xl border-2 border-green-200"
+          />
+        </div>
+        <div className="loading text-2xl font-bold">Loading ...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-50 px-4">
+      <div className="w-48 sm:w-56 mb-10">
+        <img
+          src={BannerImage}
+          alt="Court Banner"
+          className="w-full rounded-2xl shadow-xl border-2 border-green-200"
+        />
+      </div>
 
-      <img src={BannerImage} className="w-40 mb-6 rounded-xl" />
+      {/* Card */}
+      <div className="w-full max-w-md sm:max-w-lg bg-white rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 border border-gray-200">
+        {/* Header */}
+        <div className="relative flex items-center mb-10">
+          <div
+            className="absolute left-0 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="text-gray-700" />
+          </div>
+          <h1 className="mx-auto text-md sm:text-2xl md:text-3xl font-bold text-gray-800 text-center">
+            {otpSent ? "Verify OTP" : "Submit Your Number"}
+          </h1>
+        </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+        {/* Step 1: Profile */}
+        {!otpSent && (
+          <div className="space-y-6">
+            <div>
+              <label className="text-sm sm:text-base font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
+              />
+            </div>
 
-        {!otpSent ? (
-          <>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full mb-3 p-3 border rounded"
-              placeholder="Name"
-            />
-
-            <input
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              className="w-full mb-3 p-3 border rounded"
-              placeholder="Mobile"
-            />
-
-            <button onClick={handleSubmitProfile} className="w-full bg-green-500 text-white p-3 rounded">
-              {loading ? "Sending..." : "Continue"}
+            <div>
+              <label className="text-sm sm:text-base font-medium text-gray-700">
+                Mobile Number
+              </label>
+              <input
+                type="number"
+                maxLength="10"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Enter mobile number"
+                className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-base sm:text-lg focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
+              />
+            </div>
+            <button
+              onClick={handleSubmitProfile}
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-xl shadow-lg hover:from-green-500 hover:to-green-600 transition"
+            >
+              {loading ? "Sending OTP..." : "Continue"}
             </button>
-          </>
-        ) : (
-          <>
-            <input
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full mb-3 p-3 border rounded"
-              placeholder="OTP"
-            />
-
-            <button onClick={verifyOtp} className="w-full bg-green-600 text-white p-3 rounded">
-              {loading ? "Verifying..." : "Verify OTP"}
-            </button>
-          </>
+          </div>
         )}
 
+        {/* Step 2: OTP */}
+        {otpSent && (
+          <div className="space-y-6">
+            <p className="text-center text-gray-600 sm:text-base">
+              OTP sent to <b>{user.email}</b>
+            </p>
+
+            <input
+              type="text"
+              maxLength="8"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter OTP"
+              className="w-full mt-2 px-5 py-3 border rounded-xl outline-none text-center text-lg tracking-widest focus:ring-2 focus:ring-green-400 transition shadow-sm hover:shadow-md"
+            />
+
+            <button
+              onClick={verifyOtp}
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 transition"
+            >
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+
+            <button
+              onClick={sendOtp}
+              className="w-full text-green-600 text-sm sm:text-base hover:underline transition"
+            >
+              Resend OTP
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ✅ Modal */}
