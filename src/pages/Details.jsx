@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import BannerImage from "../assets/logo.jpg";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { makePayment } from "./utils/makePaymentFunction";
@@ -16,6 +16,8 @@ const DetailsPage = () => {
   const price = searchParams.get("price");
 
   const [mobile, setMobile] = useState("");
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState(false);
   const [username, setUsername] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
@@ -98,24 +100,32 @@ const DetailsPage = () => {
         email: user.email,
       });
 
-      if (!paymentResult.success) {
-        // You may also call an API here to mark booking as cancelled if desired
-        return;
+      if (paymentResult.success) {
+        console.log("Payment successful for bookingId:", bookingId);
+        setPaymentSuccess(true);
+        setTimeout(() => {
+          navigate(`/confirmation/${bookingId}`, {
+            state: {
+              date,
+              time,
+              price,
+              name: username,
+            },
+          });
+        }, 3000);
       }
 
-      // Step 4: Navigate to confirmation page (webhook will set status=paid)
-      navigate(`/confirmation/${bookingId}`, {
-        state: {
-          date,
-          time,
-          price,
-          name: username,
-        },
-      });
+      if (!paymentResult.success) {
+        // You may also call an API here to mark booking as cancelled if desired
+        setPaymentError(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
+        return;
+      }
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert(err.response?.data?.message || "OTP verification failed");
-    } finally {
       setLoading(false);
     }
   };
@@ -200,9 +210,17 @@ const DetailsPage = () => {
             </div>
             <button
               onClick={handleSubmitProfile}
-              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-xl shadow-lg hover:from-green-500 hover:to-green-600 transition"
+              disabled={loading}
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-xl shadow-lg hover:from-green-500 hover:to-green-600 transition flex items-center justify-center gap-2"
             >
-              {loading ? "Sending OTP..." : "Continue"}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Sending OTP...
+                </>
+              ) : (
+                "Continue"
+              )}
             </button>
           </div>
         )}
@@ -225,9 +243,17 @@ const DetailsPage = () => {
 
             <button
               onClick={verifyOtp}
-              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 transition"
+              disabled={loading}
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 transition flex items-center justify-center gap-2"
             >
-              {loading ? "Verifying..." : "Verify OTP"}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Verifying...
+                </>
+              ) : (
+                "Verify OTP"
+              )}
             </button>
 
             <button
@@ -239,6 +265,36 @@ const DetailsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Status Overlay */}
+      {(paymentSuccess || paymentError) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-modalFadeIn">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-xs w-full mx-4 text-center animate-modalScaleIn">
+            <div className="mb-4 flex justify-center">
+              {paymentSuccess ? (
+                <div className="bg-green-100 p-3 rounded-full">
+                  <CheckCircle2 className="text-green-600" size={48} />
+                </div>
+              ) : (
+                <div className="bg-red-100 p-3 rounded-full">
+                  <XCircle className="text-red-600" size={48} />
+                </div>
+              )}
+            </div>
+            <h2 className={`text-2xl font-bold mb-2 ${paymentSuccess ? "text-green-700" : "text-red-700"}`}>
+              {paymentSuccess ? "Payment Success!" : "Payment Failed!"}
+            </h2>
+            <p className="text-gray-600">
+              {paymentSuccess 
+                ? "Your booking is confirmed. Redirecting to confirmation page..." 
+                : "Something went wrong with the payment. Redirecting to home..."}
+            </p>
+            <div className="mt-6 flex justify-center">
+              <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

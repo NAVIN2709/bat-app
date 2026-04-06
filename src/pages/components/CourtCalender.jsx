@@ -130,7 +130,7 @@ const CourtCalendar = ({
                 }
               `}
             >
-              {dayjs(date).date()}
+              {dayjs(date, "DD-MM-YYYY").date()}
             </div>
           );
         })}

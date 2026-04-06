@@ -2,7 +2,6 @@ import axios from "axios";
 
 export async function makePayment(bookingInfo) {
   try {
-    // 1️⃣ Create Razorpay order
     const { data } = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/payment/create-order`,
       {
@@ -11,7 +10,6 @@ export async function makePayment(bookingInfo) {
       }
     );
 
-    // 2️⃣ Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
@@ -19,7 +17,6 @@ export async function makePayment(bookingInfo) {
 
     await new Promise((resolve) => (script.onload = resolve));
 
-    // 3️⃣ Wrap the Razorpay initialization in a Promise to prevent premature navigation
     return new Promise((resolve) => {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -39,11 +36,9 @@ export async function makePayment(bookingInfo) {
             );
 
             if (verifyRes.data.success) {
-              alert("Payment successful!");
-              resolve({ success: true }); // ✅ Resolve only after successful payment
+              resolve({ success: true }); 
             } else {
-              alert("Payment verification failed");
-              resolve({ success: false }); // ❌ Resolve as failure if verification fails
+              resolve({ success: false }); 
             }
           } catch (err) {
             console.error("Verification error:", err);
@@ -53,7 +48,6 @@ export async function makePayment(bookingInfo) {
         },
         modal: {
           ondismiss: function () {
-            // ❌ Handle user closing the Razorpay modal
             console.log("Payment modal closed by the user");
             resolve({ success: false });
           },
@@ -71,7 +65,6 @@ export async function makePayment(bookingInfo) {
       const paymentObject = new window.Razorpay(options);
       
       paymentObject.on("payment.failed", function (response) {
-        // ❌ Handle explicit payment failure within the modal
         console.error("Payment failed reason:", response.error.description);
         alert(response.error.description || "Payment failed");
         resolve({ success: false });
