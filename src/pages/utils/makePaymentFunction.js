@@ -11,22 +11,38 @@ export async function makePayment(bookingInfo) {
       }
     );
 
-    // 2️⃣ Load Razorpay script
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
+    // 2️⃣ Load Razorpay script ONLY ONCE
+    if (!window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
 
-    await new Promise((resolve) => (script.onload = resolve));
+      await new Promise((resolve, reject) => {
+        script.onload = resolve;
+        script.onerror = reject;
+      });
+    }
 
-    // 3️⃣ Wrap the Razorpay initialization in a Promise to prevent premature navigation
+    // 3️⃣ Wrap Razorpay in Promise (SAFE VERSION)
     return new Promise((resolve) => {
+      let resolved = false;
+
+      const safeResolve = (val) => {
+        if (!resolved) {
+          resolved = true;
+          resolve(val);
+        }
+      };
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: data.amount,
         currency: "INR",
         order_id: data.id,
         name: "KaviKanna Badminton Court",
+        description: "Court Booking Payment",
+
         handler: async function (response) {
           try {
             const verifyRes = await axios.post(
@@ -38,43 +54,47 @@ export async function makePayment(bookingInfo) {
               }
             );
 
-            if (verifyRes.data.success) {
-              alert("Payment successful!");
-              resolve({ success: true }); // ✅ Resolve only after successful payment
-            } else {
-              alert("Payment verification failed");
-              resolve({ success: false }); // ❌ Resolve as failure if verification fails
-            }
+            // ✅ Delay resolve to avoid Razorpay race condition
+            setTimeout(() => {
+              if (verifyRes.data.success) {
+                safeResolve({ success: true });
+              } else {
+                safeResolve({ success: false });
+              }
+            }, 300);
+
           } catch (err) {
             console.error("Verification error:", err);
-            alert("Payment verification encountered an error");
-            resolve({ success: false }); 
+
+            setTimeout(() => {
+              safeResolve({ success: false });
+            }, 300);
           }
         },
+
         modal: {
           ondismiss: function () {
-            // ❌ Handle user closing the Razorpay modal
-            console.log("Payment modal closed by the user");
-            resolve({ success: false });
+            console.log("Payment modal closed by user");
+            safeResolve({ success: false });
           },
         },
+
         prefill: {
           name: bookingInfo.name,
           email: bookingInfo.email,
           contact: bookingInfo.phone,
         },
+
         theme: {
           color: "#22c55e",
         },
       };
 
       const paymentObject = new window.Razorpay(options);
-      
+
       paymentObject.on("payment.failed", function (response) {
-        // ❌ Handle explicit payment failure within the modal
-        console.error("Payment failed reason:", response.error.description);
-        alert(response.error.description || "Payment failed");
-        resolve({ success: false });
+        console.error("Payment failed:", response.error.description);
+        safeResolve({ success: false });
       });
 
       paymentObject.open();
@@ -82,7 +102,6 @@ export async function makePayment(bookingInfo) {
 
   } catch (err) {
     console.error("MakePayment Error:", err);
-    alert("Payment initialization failed");
     return { success: false };
   }
 }
