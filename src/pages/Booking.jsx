@@ -5,6 +5,7 @@ import Rules from "./components/Rules";
 import CourtCalendar from "./components/CourtCalender";
 import TimeCarousel from "./components/TimeCarousel";
 import NavBar from "./components/Navbar";
+import Gallery from "./components/Gallery";
 import axios from "axios";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -153,7 +154,7 @@ const Booking = () => {
         selectedSlots={selectedSlots}
         onSlotSelect={setSelectedSlots}
       />
-
+      <Gallery />
       <Rules />
       <div className="flex justify-between items-center mt-6 bg-white p-4 rounded-xl shadow">
         <p className="text-lg font-semibold">Total Price:</p>

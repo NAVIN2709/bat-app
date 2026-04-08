@@ -49,7 +49,7 @@ const NavBar = () => {
             className="h-16 w-16 sm:h-20 sm:w-20 object-contain transition-transform duration-300"
           />
           <span className="text-xl font-semibold text-green-700 group-hover:text-green-800 transition hidden sm:block">
-            KaviKanna Badminton Court
+            KaviKanna Badminton Club
           </span>
         </div>
 
