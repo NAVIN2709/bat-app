@@ -3,6 +3,7 @@ import NavBar from "./components/Navbar";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { FaGoogle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const MembershipPage = () => {
   const [form, setForm] = useState({
@@ -12,15 +13,26 @@ const MembershipPage = () => {
     court: "",
     startDate: "",
   });
+  const navigate = useNavigate();
   const [courts, setCourts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = jwtDecode(localStorage.getItem("token"));
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    try {
+      const user = jwtDecode(localStorage.getItem("token"));
+      setUser(user);
+    } catch (error) {
+      navigate("/login");
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCourts = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`
+          `${import.meta.env.VITE_BACKEND_URL}/api/turfs`,
         );
         setCourts(res.data);
       } catch (error) {
@@ -54,10 +66,12 @@ const MembershipPage = () => {
 
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/membership`,
-        payload
+        payload,
       );
 
-      alert("Membership application submitted successfully, You will be contacted soon!");
+      alert(
+        "Membership application submitted successfully, You will be contacted soon!",
+      );
 
       // Optional: reset form
       setForm({
