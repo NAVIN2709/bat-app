@@ -19,7 +19,7 @@ const razorpay = new Razorpay({
 });
 
 const sendEmail = async (to, subject, html) => {
-  return await resend.emails.send({
+  return resend.emails.send({
     from: "KaviKanna <onboarding@kavikanna.com>",
     to,
     subject,
@@ -31,7 +31,7 @@ const createPaymentOrder = async (req, res) => {
   try {
     const { amount, bookingId } = req.body;
 
-    const booking = await Booking.findById(bookingId).populate("turf guest");
+    const booking = await Booking.findById(bookingId);
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -41,21 +41,90 @@ const createPaymentOrder = async (req, res) => {
       return res.status(400).json({ message: "Already paid" });
     }
 
+    if (booking.razorpayOrderId) {
+      return res.json({
+        id: booking.razorpayOrderId,
+        reused: true,
+      });
+    }
+
     const order = await razorpay.orders.create({
       amount: amount * 100,
       currency: "INR",
       receipt: `BOOK_${bookingId}`,
-      notes: {
-        bookingId: bookingId,
-      },
+      notes: { bookingId },
     });
+
+    booking.razorpayOrderId = order.id;
+    await booking.save();
 
     res.json(order);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Razorpay order creation failed" });
+    res.status(500).json({ message: "Order creation failed" });
   }
 };
+
+const fulfillBooking = async ({ bookingId, paymentId, amount }) => {
+  const booking = await Booking.findOneAndUpdate(
+    { _id: bookingId, status: { $ne: "paid" } },
+    {
+      status: "paid",
+      totalPrice: amount,
+      paymentId,
+    },
+    { new: true }
+  ).populate("turf guest");
+
+  if (!booking) {
+    return null; 
+  }
+
+  await Turf.findByIdAndUpdate(booking.turf._id, {
+    $push: {
+      bookings: {
+        date: booking.date,
+        slots: booking.slot,
+        bookingId: booking._id,
+        doneBy: "guest",
+      },
+    },
+  });
+
+  try {
+    await sendEmail(
+      booking.guest.email,
+      "Booking Confirmed",
+      bookingConfirmationEmail({
+        name: booking.guest.name,
+        date: booking.date,
+        bookingId: booking._id,
+        slot: booking.slot,
+        totalPrice: booking.totalPrice,
+        courtName: booking.turf.name,
+      })
+    );
+
+    await sendEmail(
+      "kavikannacourts@gmail.com",
+      "New Booking Payment Received",
+      adminBookingNotification({
+        name: booking.guest.name,
+        phone: booking.guest.phone,
+        date: booking.date,
+        bookingId: booking._id,
+        slot: booking.slot,
+        totalPrice: booking.totalPrice,
+        courtName: booking.turf.name,
+      })
+    );
+  } catch (err) {
+    console.error("Email error:", err.message);
+  }
+
+  return booking;
+};
+
 
 const verifyPayment = async (req, res) => {
   try {
@@ -78,71 +147,19 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false });
     }
 
-    const booking = await Booking.findById(bookingId).populate("turf guest");
-
-    if (!booking) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Booking not found" });
-    }
-
-    if (booking.status === "paid") {
-      return res.json({ success: true });
-    }
-    booking.status = "paid";
-    booking.totalPrice = amount;
-    booking.paymentId = razorpay_payment_id;
-    await booking.save();
-
-    await Turf.findByIdAndUpdate(booking.turf._id, {
-      $push: {
-        bookings: {
-          date: booking.date,
-          slots: booking.slot,
-          bookingId: booking._id,
-          doneBy: "guest",
-        },
-      },
+    const booking = await fulfillBooking({
+      bookingId,
+      paymentId: razorpay_payment_id,
+      amount,
     });
 
-    try {
-      await sendEmail(
-        booking.guest.email,
-        "Booking Confirmed",
-        bookingConfirmationEmail({
-          name: booking.guest.name,
-          date: booking.date,
-          bookingId: booking._id,
-          slot: booking.slot,
-          totalPrice: booking.totalPrice,
-          courtName: booking.turf.name,
-        }),
-      );
-
-      // Send notification to Admin
-      await sendEmail(
-        "kavikannacourts@gmail.com",
-        "New Booking Payment Received",
-        adminBookingNotification({
-          name: booking.guest.name,
-          phone: booking.guest.phone,
-          date: booking.date,
-          bookingId: booking._id,
-          slot: booking.slot,
-          totalPrice: booking.totalPrice,
-          courtName: booking.turf.name,
-        }),
-      );
-    } catch (err) {
-      console.error("Failed to send emails on verify-payment:", err.message);
-    }
-
-    res.json({ success: true });
+    return res.json({ success: true, processed: !!booking });
   } catch (err) {
-    console.error("verifyPayment Error:", err);
+    console.error("verifyPayment error:", err);
     res.status(500).json({ success: false });
   }
 };
+
 
 const paymentWebhook = async (req, res) => {
   try {
@@ -162,82 +179,29 @@ const paymentWebhook = async (req, res) => {
     const event = req.body;
 
     if (event.event === "payment.captured" || event.event === "order.paid") {
-      const paymentEntity = event.payload.payment
-        ? event.payload.payment.entity
-        : null;
-      const orderEntity = event.payload.order
-        ? event.payload.order.entity
-        : paymentEntity;
+      const payment = event.payload.payment?.entity;
+      const order = event.payload.order?.entity || payment;
 
-      const bookingId = orderEntity?.notes?.bookingId;
-      const amount = paymentEntity ? paymentEntity.amount / 100 : 0;
+      const bookingId = order?.notes?.bookingId;
+      const amount = payment?.amount / 100;
+      const paymentId = payment?.id;
 
-      if (!bookingId) {
-        console.warn("Webhook received payment without bookingId in notes");
+      if (!bookingId || !paymentId) {
         return res.status(200).json({ success: true });
       }
 
-      const booking = await Booking.findById(bookingId).populate("turf guest");
-
-      if (!booking || booking.status === "paid") {
-        return res.status(200).json({ success: true });
-      }
-      booking.status = "paid";
-      booking.totalPrice = amount;
-      booking.paymentId = paymentEntity ? paymentEntity.id : "unknown";
-      await booking.save();
-
-      await Turf.findByIdAndUpdate(booking.turf._id, {
-        $push: {
-          bookings: {
-            date: booking.date,
-            slots: booking.slot,
-            bookingId: booking._id,
-            doneBy: "guest",
-          },
-        },
+      await fulfillBooking({
+        bookingId,
+        paymentId,
+        amount,
       });
 
-      try {
-        await sendEmail(
-          booking.guest.email,
-          "Booking Confirmed",
-          bookingConfirmationEmail({
-            name: booking.guest.name,
-            date: booking.date,
-            bookingId: booking._id,
-            slot: booking.slot,
-            totalPrice: booking.totalPrice,
-            courtName: booking.turf.name,
-          }),
-        );
-
-        // Send notification to Admin
-        await sendEmail(
-          "kavikannacourts@gmail.com",
-          "New Booking Payment Received (Webhook)",
-          adminBookingNotification({
-            name: booking.guest.name,
-            phone: booking.guest.phone,
-            date: booking.date,
-            bookingId: booking._id,
-            slot: booking.slot,
-            totalPrice: booking.totalPrice,
-            courtName: booking.turf.name,
-          }),
-        );
-      } catch (emailErr) {
-        console.error("Failed to send webhook emails:", emailErr.message);
-      }
-
-      console.log(
-        `Payment fulfillment complete for booking ${bookingId} via webhook fallback`,
-      );
+      console.log(`Webhook processed for booking ${bookingId}`);
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Webhook error encountered:", err.message);
+    console.error("Webhook error:", err.message);
     res.status(400).json({ success: false });
   }
 };
