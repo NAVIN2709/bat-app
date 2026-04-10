@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { X, PlayCircle, Eye, Search } from "lucide-react";
+import Image1 from "../../assets/image1.webp";
+import Image2 from "../../assets/image2.webp";
+import Image3 from "../../assets/image3.webp";
 
 const Gallery = () => {
   const [selectedMedia, setSelectedMedia] = useState(null);
@@ -8,54 +11,28 @@ const Gallery = () => {
     {
       id: 1,
       type: "image",
-      url: "https://images.unsplash.com/photo-1626224580194-86083b26ecbd?q=80&w=2070&auto=format&fit=crop",
+      url: Image1,
       title: "Premium Indoor Court",
     },
     {
       id: 2,
       type: "image",
-      url: "https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=2070&auto=format&fit=crop",
+      url: Image2,
       title: "Night Session Lighting",
     },
     {
       id: 3,
       type: "video",
-      url: "https://assets.mixkit.co/videos/preview/mixkit-playing-badminton-with-a-friend-41019-large.mp4",
+      url: "https://videos.pexels.com/video-files/35087085/14864015_2560_1440_30fps.mp4",
       thumbnail:
-        "https://images.unsplash.com/photo-1613918431703-04e4a7796d11?q=80&w=2070&auto=format&fit=crop",
+        Image3,
       title: "Match Highlights",
     },
     {
       id: 4,
       type: "image",
-      url: "https://images.unsplash.com/photo-1600677396313-4a5dfee3d12d?q=80&w=2070&auto=format&fit=crop",
+      url: Image3,
       title: "Professional Flooring",
-    },
-    {
-      id: 5,
-      type: "image",
-      url: "https://images.unsplash.com/photo-1611251147551-71fb2c061803?q=80&w=2070&auto=format&fit=crop",
-      title: "Locker Room Amenities",
-    },
-    {
-      id: 6,
-      type: "video",
-      url: "https://videos.pexels.com/video-files/36934432/15647203_2560_1440_30fps.mp4",
-      thumbnail:
-        "https://images.pexels.com/videos/36934432/pexels-photo-36934432.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=750",
-      title: "Power Smash Slow Motion",
-    },
-    {
-      id: 7,
-      type: "image",
-      url: "https://images.unsplash.com/photo-1511067007398-7e4b90cfa4bc?q=80&w=2070&auto=format&fit=crop",
-      title: "Reception Area",
-    },
-    {
-      id: 8,
-      type: "image",
-      url: "https://images.unsplash.com/photo-1595435063044-f25717462e08?q=80&w=2070&auto=format&fit=crop",
-      title: "Training Session",
     },
   ];
 
@@ -151,7 +128,7 @@ const Gallery = () => {
               <p className="text-green-500 font-bold uppercase tracking-widest text-xs md:text-sm mt-3">
                 {selectedMedia.type === "video"
                   ? "Full Video Tour"
-                  : "Facility Showcase"}
+                  : "Club Gallery Image"}
               </p>
             </div>
           </div>
