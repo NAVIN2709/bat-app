@@ -201,17 +201,17 @@ const MembershipPage = () => {
               className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:outline-none"
             >
               <option value="">Select time slot</option>
-              <option>05:00 – 06:00</option>
-              <option>06:00 – 07:00</option>
-              <option>07:00 – 08:00</option>
-              <option>08:00 – 09:00</option>
-              <option>09:00 – 10:00</option>
-              <option>10:00 – 11:00</option>
-              <option>16:00 – 17:00</option>
-              <option>17:00 – 18:00</option>
-              <option>18:00 – 19:00</option>
-              <option>19:00 – 20:00</option>
-              <option>20:00 – 21:00</option>
+              <option>05:00-06:00</option>
+              <option>06:00-07:00</option>
+              <option>07:00-08:00</option>
+              <option>08:00-09:00</option>
+              <option>09:00-10:00</option>
+              <option>10:00-11:00</option>
+              <option>16:00-17:00</option>
+              <option>17:00-18:00</option>
+              <option>18:00-19:00</option>
+              <option>19:00-20:00</option>
+              <option>20:00-21:00</option>
             </select>
           </div>
 
