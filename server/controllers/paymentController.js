@@ -8,6 +8,7 @@ const {
 const {
   adminBookingNotification,
 } = require("../utils/adminBookingNotification");
+const { fulfillMembership } = require("./membershipPaymentController");
 const { Resend } = require("resend");
 require("dotenv").config();
 
@@ -183,20 +184,25 @@ const paymentWebhook = async (req, res) => {
       const order = event.payload.order?.entity || payment;
 
       const bookingId = order?.notes?.bookingId;
+      const membershipId = order?.notes?.membershipId;
       const amount = payment?.amount / 100;
       const paymentId = payment?.id;
 
-      if (!bookingId || !paymentId) {
-        return res.status(200).json({ success: true });
+      if (bookingId) {
+        await fulfillBooking({
+          bookingId,
+          paymentId,
+          amount,
+        });
+        console.log(`Webhook processed for booking ${bookingId}`);
+      } else if (membershipId) {
+        await fulfillMembership({
+          membershipId,
+          paymentId,
+          amount,
+        });
+        console.log(`Webhook processed for membership ${membershipId}`);
       }
-
-      await fulfillBooking({
-        bookingId,
-        paymentId,
-        amount,
-      });
-
-      console.log(`Webhook processed for booking ${bookingId}`);
     }
 
     res.status(200).json({ success: true });

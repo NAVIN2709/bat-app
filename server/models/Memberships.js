@@ -8,6 +8,10 @@ const membershipSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   name: { type: String, required: true },
   isAllowed: { type: Boolean, default: false },
+  status: { type: String, enum: ["pending", "paid"], default: "pending" },
+  razorpayOrderId: { type: String },
+  paymentId: { type: String },
+  amount: { type: Number },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Membership", membershipSchema,"memberships");

@@ -232,7 +232,7 @@ function bookingConfirmationEmail({
         color:#374151;
         margin:0 0 8px;
         font-weight:600;
-      ">KaviKanna Badminton Court</p>
+      ">KaviKanna Badminton Club</p>
       
       <p style="
         font-size:13px;

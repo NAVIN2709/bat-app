@@ -4,6 +4,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { FaGoogle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { makeMembershipPayment } from "./utils/makeMembershipPaymentFunction";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 const MembershipPage = () => {
   const [form, setForm] = useState({
@@ -17,16 +19,20 @@ const MembershipPage = () => {
   const [courts, setCourts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState(false);
 
   useEffect(() => {
     try {
-      const user = jwtDecode(localStorage.getItem("token"));
-      setUser(user);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token");
+      const decodedUser = jwtDecode(token);
+      setUser(decodedUser);
     } catch (error) {
       navigate("/login");
       setUser(null);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchCourts = async () => {
@@ -64,23 +70,37 @@ const MembershipPage = () => {
         guestId: user.guestId,
       };
 
+      // 1. Create "pending" membership record
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/membership`,
         payload,
       );
 
-      alert(
-        "Membership application submitted successfully, You will be contacted soon!",
-      );
+      const membershipId = res.data._id;
 
-      // Optional: reset form
-      setForm({
-        name: "",
-        phone: "",
-        timeSlot: "",
-        court: "",
-        startDate: "",
+      // 2. Trigger Payment
+      const paymentResult = await makeMembershipPayment({
+        membershipId,
+        name: form.name,
+        phone: form.phone,
+        email: user.email,
       });
+
+      // 3. UI Handling
+      if (paymentResult.success) {
+        setPaymentSuccess(true);
+        setForm({
+          name: "",
+          phone: "",
+          timeSlot: "",
+          court: "",
+          startDate: "",
+        });
+        setTimeout(() => setPaymentSuccess(false), 5000);
+      } else {
+        setPaymentError(true);
+        setTimeout(() => setPaymentError(false), 5000);
+      }
     } catch (error) {
       console.error("Error submitting membership:", error);
       alert(error.response?.data?.message || "Failed to apply for membership");
@@ -119,15 +139,12 @@ const MembershipPage = () => {
     <div className="min-h-screen bg-green-50">
       <NavBar />
 
-      {/* Header */}
       <div className="text-center mt-12 px-4">
         <h1 className="text-4xl font-bold text-green-700">Membership</h1>
       </div>
 
-      {/* Form Card */}
-      <div className="max-w-lg mx-auto mt-10 bg-white rounded-3xl shadow-xl p-8 border border-green-100">
+      <div className="max-w-lg mx-auto mt-10 bg-white rounded-3xl shadow-xl p-8 border border-green-100 mb-10">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
           <div>
             <label className="text-sm font-semibold text-green-700">
               Full Name
@@ -143,7 +160,6 @@ const MembershipPage = () => {
             />
           </div>
 
-          {/* Phone */}
           <div>
             <label className="text-sm font-semibold text-green-700">
               Mobile Number
@@ -159,7 +175,6 @@ const MembershipPage = () => {
             />
           </div>
 
-          {/* Start Date */}
           <div>
             <label className="text-sm font-semibold text-green-700">
               Start Date
@@ -170,12 +185,10 @@ const MembershipPage = () => {
               value={form.startDate}
               onChange={handleChange}
               required
-              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300
-               focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
-          {/* Time Slot */}
           <div>
             <label className="text-sm font-semibold text-green-700">
               Preferred Time Slot
@@ -202,25 +215,21 @@ const MembershipPage = () => {
             </select>
           </div>
 
-          {/* Court */}
           <div>
             <label className="text-sm font-semibold text-green-700">
               Court
             </label>
-
             <select
               name="court"
               value={form.court}
               onChange={handleChange}
               required
-              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
-               focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:outline-none"
               disabled={loading}
             >
               <option value="">
                 {loading ? "Loading courts..." : "Select court"}
               </option>
-
               {courts.map((court) => (
                 <option key={court._id} value={court._id}>
                   {court.name}
@@ -229,21 +238,48 @@ const MembershipPage = () => {
             </select>
           </div>
 
-          {/* Price Info */}
           <div className="bg-green-100 rounded-xl p-4 text-center">
             <p className="text-green-800 font-semibold">₹4000 / Month</p>
             <p className="text-sm text-green-700">Includes 1 hour daily play</p>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition"
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50"
+            disabled={loading}
           >
-            Apply for Membership
+            {loading ? "Processing..." : "Apply for Membership"}
           </button>
         </form>
       </div>
+
+      {/* ✅ Modal */}
+      {(paymentSuccess || paymentError) && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-2xl text-center shadow-2xl max-w-xs w-full">
+            {paymentSuccess ? (
+              <>
+                <CheckCircle2
+                  className="text-green-500 mx-auto mb-4"
+                  size={48}
+                />
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Payment Success
+                </h2>
+                <p className="text-gray-600 mt-2">Welcome to the club!</p>
+              </>
+            ) : (
+              <>
+                <XCircle className="text-red-500 mx-auto mb-4" size={48} />
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Payment Failed
+                </h2>
+                <p className="text-gray-600 mt-2">Please try again later.</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

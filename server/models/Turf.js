@@ -32,6 +32,10 @@ const turfSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Booking",
         },
+        membershipId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Membership",
+        },
         doneBy: {
           type: String,
           required: true,

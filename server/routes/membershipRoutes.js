@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const Turfs = require("../models/Turf")
 const Membership = require("../models/Memberships");
+const {
+  createMembershipOrder,
+  verifyMembershipPayment,
+} = require("../controllers/membershipPaymentController");
 
 router.get("/", async (req, res) => {
   try {
@@ -29,7 +32,7 @@ router.post("/", async (req, res) => {
       slot: slot,
       turf: turfId,
       guest: guestId,
-      isAllowed : false
+      isAllowed: false,
     });
 
     res.status(201).json(membership);
@@ -44,7 +47,7 @@ router.patch("/:id/approve", async (req, res) => {
     const membership = await Membership.findByIdAndUpdate(
       req.params.id,
       { isAllowed: true },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json(membership);
@@ -52,5 +55,8 @@ router.patch("/:id/approve", async (req, res) => {
     res.status(500).json({ message: "Failed to approve membership" });
   }
 });
+
+router.post("/create-order", createMembershipOrder);
+router.post("/verify-payment", verifyMembershipPayment);
 
 module.exports = router;
