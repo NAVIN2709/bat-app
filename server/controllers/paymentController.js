@@ -50,7 +50,7 @@ const createPaymentOrder = async (req, res) => {
     }
 
     const order = await razorpay.orders.create({
-      amount: amount * 100,
+      amount: (amount + 5) * 100, // INR to Paise (including 5 INR platform fee)
       currency: "INR",
       receipt: `BOOK_${bookingId}`,
       notes: { bookingId },
@@ -101,6 +101,8 @@ const fulfillBooking = async ({ bookingId, paymentId, amount }) => {
         date: booking.date,
         bookingId: booking._id,
         slot: booking.slot,
+        basePrice: booking.totalPrice - 5,
+        platformFee: 5,
         totalPrice: booking.totalPrice,
         courtName: booking.turf.name,
       })
@@ -115,6 +117,8 @@ const fulfillBooking = async ({ bookingId, paymentId, amount }) => {
         date: booking.date,
         bookingId: booking._id,
         slot: booking.slot,
+        basePrice: booking.totalPrice - 5,
+        platformFee: 5,
         totalPrice: booking.totalPrice,
         courtName: booking.turf.name,
       })

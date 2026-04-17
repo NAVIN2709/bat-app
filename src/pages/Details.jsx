@@ -205,6 +205,9 @@ const DetailsPage = () => {
             >
               {loading ? "Sending OTP..." : "Continue"}
             </button>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              + ₹5 platform fee will be added at checkout
+            </p>
           </div>
         )}
 
@@ -230,6 +233,9 @@ const DetailsPage = () => {
             >
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              + ₹5 platform fee will be added at checkout
+            </p>
 
             <button
               onClick={sendOtp}

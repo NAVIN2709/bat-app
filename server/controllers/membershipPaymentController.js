@@ -50,7 +50,7 @@ const createMembershipOrder = async (req, res) => {
     }
 
     const order = await razorpay.orders.create({
-      amount: amount * 100, // Amount in paise
+      amount: (amount + 99) * 100, // INR to Paise (including 99 INR platform fee)
       currency: "INR",
       receipt: `MEMB_${membershipId}`,
       notes: { membershipId },
@@ -147,7 +147,9 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
         conflicts: membership.conflicts,
         membershipId: membership._id,
         slot: membership.slot,
-        amount: membership.amount,
+        basePrice: membership.amount - 99,
+        platformFee: 99,
+        totalPrice: membership.amount,
         courtName: membership.turf.name,
       }),
     );
@@ -164,7 +166,9 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
         conflicts: membership.conflicts,
         membershipId: membership._id,
         slot: membership.slot,
-        amount: membership.amount,
+        basePrice: membership.amount - 99,
+        platformFee: 99,
+        totalPrice: membership.amount,
         courtName: membership.turf.name,
       }),
     );

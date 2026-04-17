@@ -4,6 +4,8 @@ function adminBookingNotification({
   date,
   bookingId,
   slot,
+  basePrice,
+  platformFee,
   totalPrice,
   courtName,
 }) {
@@ -111,7 +113,16 @@ function adminBookingNotification({
         padding:20px;
         text-align:center;
       ">
-        <div style="font-size:12px; color:rgba(255,255,255,0.8); text-transform:uppercase; margin-bottom:4px;">Amount Received</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:rgba(255,255,255,0.8); font-size:12px;">Base Price:</span>
+          <span style="color:#FFFFFF; font-weight:600;">₹${basePrice}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <span style="color:rgba(255,255,255,0.8); font-size:12px;">Platform Fee:</span>
+          <span style="color:#FFFFFF; font-weight:600;">₹${platformFee}</span>
+        </div>
+        <div style="height:1px; background:rgba(255,255,255,0.2); margin-bottom:12px;"></div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.8); text-transform:uppercase; margin-bottom:4px;">Total Amount Received</div>
         <div style="font-size:32px; color:#FFFFFF; font-weight:700;">₹${totalPrice}</div>
       </div>
 

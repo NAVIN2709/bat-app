@@ -3,6 +3,8 @@ function bookingConfirmationEmail({
   date,
   bookingId,
   slot,
+  basePrice,
+  platformFee,
   totalPrice,
   courtName,
 }) {
@@ -147,6 +149,15 @@ function bookingConfirmationEmail({
         text-align:center;
         margin-bottom:32px;
       ">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:rgba(255,255,255,0.8); font-size:13px;">Base Price:</span>
+          <span style="color:#FFFFFF; font-weight:600;">₹${basePrice}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <span style="color:rgba(255,255,255,0.8); font-size:13px;">Platform Fee:</span>
+          <span style="color:#FFFFFF; font-weight:600;">₹${platformFee}</span>
+        </div>
+        <div style="height:1px; background:rgba(255,255,255,0.2); margin-bottom:12px;"></div>
         <div style="
           font-size:11px; 
           color:rgba(255,255,255,0.8); 
@@ -154,7 +165,7 @@ function bookingConfirmationEmail({
           text-transform:uppercase; 
           letter-spacing:1px; 
           margin-bottom:8px;
-        ">Total Amount</div>
+        ">Total Paid</div>
         <div style="
           font-size:36px; 
           color:#FFFFFF; 

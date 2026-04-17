@@ -5,7 +5,9 @@ function membershipConfirmationEmail({
   conflicts = [],
   membershipId,
   slot,
-  amount,
+  basePrice,
+  platformFee,
+  totalPrice,
   courtName,
 }) {
   const conflictsHtml =
@@ -47,8 +49,17 @@ function membershipConfirmationEmail({
           </div>
           ${conflictsHtml}
           <div style="background:#16a34a; border-radius:12px; padding:20px; text-align:center; color:#FFFFFF;">
-            <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Amount Paid</div>
-            <div style="font-size:32px; font-weight:800;">₹${amount}</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="color:rgba(255,255,255,0.8); font-size:13px;">Base Price:</span>
+              <span style="color:#FFFFFF; font-weight:600;">₹${basePrice}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:rgba(255,255,255,0.8); font-size:13px;">Platform Fee:</span>
+              <span style="color:#FFFFFF; font-weight:600;">₹${platformFee}</span>
+            </div>
+            <div style="height:1px; background:rgba(255,255,255,0.2); margin-bottom:12px;"></div>
+            <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Total Paid</div>
+            <div style="font-size:32px; font-weight:800;">₹${totalPrice}</div>
           </div>
         </div>
         <div style="background:#f9fafb; padding:32px 40px; text-align:center; border-top:1px solid #e5e7eb;">
@@ -71,7 +82,9 @@ function adminMembershipNotification({
   conflicts = [],
   membershipId,
   slot,
-  amount,
+  basePrice,
+  platformFee,
+  totalPrice,
   courtName,
 }) {
   const conflictsHtml =
@@ -105,8 +118,17 @@ function adminMembershipNotification({
           </div>
           ${conflictsHtml}
           <div style="background:#2563eb; border-radius:12px; padding:20px; text-align:center; color:#FFFFFF;">
-            <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Membership Fee Received</div>
-            <div style="font-size:32px; font-weight:800;">₹${amount}</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="color:rgba(255,255,255,0.8); font-size:12px;">Base Price:</span>
+              <span style="color:#FFFFFF; font-weight:600;">₹${basePrice}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:rgba(255,255,255,0.8); font-size:12px;">Platform Fee:</span>
+              <span style="color:#FFFFFF; font-weight:600;">₹${platformFee}</span>
+            </div>
+            <div style="height:1px; background:rgba(255,255,255,0.2); margin-bottom:12px;"></div>
+            <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Total Amount Received</div>
+            <div style="font-size:32px; font-weight:800;">₹${totalPrice}</div>
           </div>
         </div>
       </div>

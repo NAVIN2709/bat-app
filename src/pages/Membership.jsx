@@ -239,7 +239,9 @@ const MembershipPage = () => {
           </div>
 
           <div className="bg-green-100 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold">₹4000 / Month</p>
+            <p className="text-green-800 font-semibold">
+              ₹4000 / Month + ₹99 Platform Fee
+            </p>
             <p className="text-sm text-green-700">Includes 1 hour daily play</p>
           </div>
 
@@ -250,6 +252,9 @@ const MembershipPage = () => {
           >
             {loading ? "Processing..." : "Apply for Membership"}
           </button>
+          <p className="text-center text-xs text-gray-500 mt-2">
+            + ₹99 platform fee will be added at checkout
+          </p>
         </form>
       </div>
 
