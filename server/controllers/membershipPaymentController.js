@@ -2,7 +2,10 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Membership = require("../models/Memberships");
 const Turf = require("../models/Turf");
-const { membershipConfirmationEmail, adminMembershipNotification } = require("../utils/membershipEmail");
+const {
+  membershipConfirmationEmail,
+  adminMembershipNotification,
+} = require("../utils/membershipEmail");
 const { Resend } = require("resend");
 const dayjs = require("dayjs");
 require("dotenv").config();
@@ -74,7 +77,7 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
       paymentId,
       amount,
     },
-    { new: true }
+    { new: true },
   ).populate("turf guest");
 
   if (!membership) {
@@ -82,28 +85,50 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
     return null;
   }
 
-  // ✅ Automatic Slot Blocking: Block all days in the remaining month
+  // Automatic Slot Blocking: Block all days for exactly one month (e.g., 17th April to 17th May)
   try {
     const start = dayjs(membership.startDate); // Assuming YYYY-MM-DD
-    const end = start.endOf("month");
+    const end = start.add(1, "month");
     const bookingsToAdd = [];
+    const conflicts = [];
 
+    // Fetch turf again to get latest bookings for conflict check
+    const turfDoc = await Turf.findById(membership.turf._id);
+    
     let current = start;
     while (current.isBefore(end) || current.isSame(end, "day")) {
-      bookingsToAdd.push({
-        date: current.format("DD-MM-YYYY"),
-        slots: [membership.slot],
-        membershipId: membership._id,
-        doneBy: "member",
-      });
+      const dateStr = current.format("DD-MM-YYYY");
+      
+      // Check if slot is already booked on this date
+      const isAlreadyBooked = turfDoc.bookings.some(b => 
+        b.date === dateStr && b.slots.includes(membership.slot)
+      );
+
+      if (isAlreadyBooked) {
+        conflicts.push(dateStr);
+      } else {
+        bookingsToAdd.push({
+          date: dateStr,
+          slots: [membership.slot],
+          membershipId: membership._id,
+          doneBy: "member",
+        });
+      }
       current = current.add(1, "day");
     }
+
+    // Save end date and conflicts to membership
+    membership.endDate = end.format("YYYY-MM-DD");
+    membership.conflicts = conflicts;
+    await membership.save();
 
     if (bookingsToAdd.length > 0) {
       await Turf.findByIdAndUpdate(membership.turf._id, {
         $push: { bookings: { $each: bookingsToAdd } },
       });
-      console.log(`Blocked ${bookingsToAdd.length} slots for membership ${membershipId}`);
+      console.log(
+        `Blocked ${bookingsToAdd.length} slots for membership ${membershipId}. ${conflicts.length} conflicts found.`,
+      );
     }
   } catch (err) {
     console.error("Error blocking slots for membership:", err.message);
@@ -118,11 +143,13 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
       membershipConfirmationEmail({
         name: membership.name,
         startDate: membership.startDate,
+        endDate: membership.endDate,
+        conflicts: membership.conflicts,
         membershipId: membership._id,
         slot: membership.slot,
         amount: membership.amount,
         courtName: membership.turf.name,
-      })
+      }),
     );
 
     // To Admin
@@ -133,11 +160,13 @@ const fulfillMembership = async ({ membershipId, paymentId, amount }) => {
         name: membership.name,
         phone: membership.phoneNumber,
         startDate: membership.startDate,
+        endDate: membership.endDate,
+        conflicts: membership.conflicts,
         membershipId: membership._id,
         slot: membership.slot,
         amount: membership.amount,
         courtName: membership.turf.name,
-      })
+      }),
     );
     console.log(`Emails sent for membership ${membershipId}`);
   } catch (err) {
@@ -165,7 +194,9 @@ const verifyMembershipPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: "Invalid signature" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid signature" });
     }
 
     const membership = await fulfillMembership({

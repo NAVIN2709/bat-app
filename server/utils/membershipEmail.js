@@ -1,15 +1,22 @@
-/**
- * Template for Membership Confirmation (Sent to User)
- */
 function membershipConfirmationEmail({
-    name,
-    startDate,
-    membershipId,
-    slot,
-    amount,
-    courtName,
-  }) {
-    return `
+  name,
+  startDate,
+  endDate,
+  conflicts = [],
+  membershipId,
+  slot,
+  amount,
+  courtName,
+}) {
+  const conflictsHtml =
+    conflicts.length > 0
+      ? `<div style="margin-top:16px; padding:12px; background:#fff7ed; border-radius:8px; border:1px solid #fed7aa;">
+          <strong style="color:#9a3412; font-size:14px;">⚠️ Note: Skipped Bookings</strong>
+          <p style="color:#c2410c; font-size:13px; margin:4px 0 0;">The following dates were already booked by others and were skipped: <br/>${conflicts.join(", ")}</p>
+         </div>`
+      : "";
+
+  return `
     <div style="margin:0; padding:40px 20px; background:#f0fdf4; font-family: sans-serif;">
       <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05); overflow:hidden;">
         <div style="background:#16a34a; height:6px;"></div>
@@ -33,11 +40,12 @@ function membershipConfirmationEmail({
               <span style="color:#6b7280;">Time Slot:</span>
               <strong style="color:#111827;">${slot}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:#6b7280;">Start Date:</span>
-              <strong style="color:#111827;">${startDate}</strong>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:#6b7280;">Duration:</span>
+              <strong style="color:#111827;">${startDate} to ${endDate || "N/A"}</strong>
             </div>
           </div>
+          ${conflictsHtml}
           <div style="background:#16a34a; border-radius:12px; padding:20px; text-align:center; color:#FFFFFF;">
             <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Amount Paid</div>
             <div style="font-size:32px; font-weight:800;">₹${amount}</div>
@@ -50,21 +58,31 @@ function membershipConfirmationEmail({
       </div>
     </div>
     `;
-  }
-  
-  /**
-   * Template for Admin Notification (Sent to Admin)
-   */
-  function adminMembershipNotification({
-    name,
-    phone,
-    startDate,
-    membershipId,
-    slot,
-    amount,
-    courtName,
-  }) {
-    return `
+}
+
+/**
+ * Template for Admin Notification (Sent to Admin)
+ */
+function adminMembershipNotification({
+  name,
+  phone,
+  startDate,
+  endDate,
+  conflicts = [],
+  membershipId,
+  slot,
+  amount,
+  courtName,
+}) {
+  const conflictsHtml =
+    conflicts.length > 0
+      ? `<div style="margin-top:16px; padding:12px; background:#fef2f2; border-radius:8px; border:1px solid #fecaca; margin-bottom:24px;">
+          <strong style="color:#991b1b; font-size:14px;">🚨 Booking Conflicts Detected</strong>
+          <p style="color:#b91c1c; font-size:13px; margin:4px 0 0;">These dates were already booked and were NOT blocked for this member: <br/>${conflicts.join(", ")}</p>
+         </div>`
+      : "";
+
+  return `
     <div style="margin:0; padding:40px 20px; background:#f8faf9; font-family: sans-serif;">
       <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05); overflow:hidden;">
         <div style="background:#2563eb; height:6px;"></div>
@@ -83,8 +101,9 @@ function membershipConfirmationEmail({
             <div style="margin-bottom:10px;"><span style="color:#6b7280;">ID:</span> <strong style="color:#111827;">${membershipId}</strong></div>
             <div style="margin-bottom:10px;"><span style="color:#6b7280;">Court:</span> <strong style="color:#111827;">${courtName}</strong></div>
             <div style="margin-bottom:10px;"><span style="color:#6b7280;">Slot:</span> <strong style="color:#111827;">${slot}</strong></div>
-            <div><span style="color:#6b7280;">Start:</span> <strong style="color:#111827;">${startDate}</strong></div>
+            <div><span style="color:#6b7280;">Duration:</span> <strong style="color:#111827;">${startDate} to ${endDate || "N/A"}</strong></div>
           </div>
+          ${conflictsHtml}
           <div style="background:#2563eb; border-radius:12px; padding:20px; text-align:center; color:#FFFFFF;">
             <div style="font-size:12px; opacity:0.9; text-transform:uppercase; margin-bottom:4px;">Membership Fee Received</div>
             <div style="font-size:32px; font-weight:800;">₹${amount}</div>
@@ -93,6 +112,6 @@ function membershipConfirmationEmail({
       </div>
     </div>
     `;
-  }
-  
-  module.exports = { membershipConfirmationEmail, adminMembershipNotification };
+}
+
+module.exports = { membershipConfirmationEmail, adminMembershipNotification };
