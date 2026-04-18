@@ -4,7 +4,7 @@ const Rules = () => {
   const rules = [
     'Non-marking shoes only',
     'Keep the court clean',
-    'Rackets/shuttlecocks shall be used with your own responsibility',
+    'Racquets/shuttlecocks shall be used with your own responsibility',
     'Lights and fans shall be turned off when not in use',
     'Maximum 8 players are allowed to play in a booked slot',
   ];

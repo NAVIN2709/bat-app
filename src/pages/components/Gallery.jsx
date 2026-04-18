@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { X, PlayCircle, Eye, Search } from "lucide-react";
 import Image1 from "../../assets/image1.webp";
-import Image2 from "../../assets/image2.webp";
+import Image2 from "../../assets/image2.webp"
 import Image3 from "../../assets/image3.webp";
+import Image4 from "../../assets/image3.jpeg";
+import Image5 from "../../assets/image4.jpeg";
 
 const Gallery = () => {
   const [selectedMedia, setSelectedMedia] = useState(null);
@@ -17,15 +19,15 @@ const Gallery = () => {
     {
       id: 2,
       type: "image",
-      url: Image2,
-      title: "Night Session Lighting",
+      url: Image4,
+      title: "Tournaments & Events",
     },
     {
       id: 3,
       type: "video",
       url: "https://videos.pexels.com/video-files/35087085/14864015_2560_1440_30fps.mp4",
       thumbnail:
-        Image3,
+        Image5,
       title: "Match Highlights",
     },
     {
