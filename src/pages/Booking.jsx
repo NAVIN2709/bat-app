@@ -58,13 +58,35 @@ const Booking = () => {
   }, []);
 
   useEffect(() => {
-    if (!bookedData.length || !selectedDate) return;
+    if (!selectedDate) return;
 
-    // reset slots
-    const updatedSlots = BASE_SLOTS.map((slot) => ({
-      ...slot,
-      booked: false,
-    }));
+    const today = dayjs().format("DD-MM-YYYY");
+    const isPastDate = dayjs(selectedDate, "DD-MM-YYYY").isBefore(dayjs(), "day");
+    const isToday = selectedDate === today;
+
+    // reset slots and check for past times
+    const updatedSlots = BASE_SLOTS.map((slot) => {
+      let isBooked = false;
+
+      if (isPastDate) {
+        isBooked = true;
+      } else if (isToday) {
+        // Extract start time "05:00" from "05:00-06:00"
+        const startTimeStr = slot.time.split("-")[0];
+        const slotStartTime = dayjs(
+          `${selectedDate} ${startTimeStr}`,
+          "DD-MM-YYYY HH:mm",
+        );
+        if (slotStartTime.isBefore(dayjs())) {
+          isBooked = true;
+        }
+      }
+
+      return {
+        ...slot,
+        booked: isBooked,
+      };
+    });
 
     const availabilityMap = {};
     const slotsByDate = {};

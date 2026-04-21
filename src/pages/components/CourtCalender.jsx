@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { ArrowBigRightIcon, ArrowBigLeft } from "lucide-react";
 
 dayjs.extend(customParseFormat);
 
@@ -11,7 +10,6 @@ const CourtCalendar = ({
   onDateSelect = () => {},
 }) => {
   const today = dayjs();
-  const [currentMonth, setCurrentMonth] = useState(today.startOf("month"));
 
   const weekDays = ["M", "T", "W", "T", "F", "S", "S"];
 
@@ -19,7 +17,7 @@ const CourtCalendar = ({
     const startOfMonth = month.startOf("month");
     const endOfMonth = month.endOf("month");
 
-    const leadingEmptyDays = (startOfMonth.day() + 6) % 7; // Monday as first day
+    const leadingEmptyDays = (startOfMonth.day() + 6) % 7;
     const days = [];
 
     for (let i = 0; i < leadingEmptyDays; i++) days.push(null);
@@ -32,7 +30,7 @@ const CourtCalendar = ({
     return days;
   };
 
-  const days = generateMonthDays(currentMonth);
+  const days = generateMonthDays(today);
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-2xl shadow mb-6 max-w-3xl mx-auto">
@@ -52,7 +50,8 @@ const CourtCalendar = ({
             return <div key={i} className="aspect-square"></div>;
           }
 
-          const isAvailable = availability[date] ?? true;
+          const isPast = dayjs(date, "DD-MM-YYYY").isBefore(today, "day");
+          const isAvailable = (availability[date] ?? true) && !isPast;
           const isSelected = selectedDate === date;
 
           return (
@@ -66,7 +65,7 @@ const CourtCalendar = ({
                 ${
                   isAvailable
                     ? "bg-green-100 text-green-700 border-green-300 hover:shadow-sm"
-                    : "bg-red-100 text-red-600 border-red-300 opacity-60 cursor-not-allowed"
+                    : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50"
                 }
                 ${
                   isSelected
