@@ -18,8 +18,10 @@ const Gallery = () => {
     },
     {
       id: 2,
-      type: "image",
-      url: Image4,
+      type: "video",
+      url: "https://res.cloudinary.com/dosaigy3m/video/upload/v1776875564/WhatsApp_Video_2026-04-22_at_21.41.31_fai93k.mp4",
+      thumbnail:
+        Image4,
       title: "Tournaments & Events",
     },
     {
@@ -32,8 +34,9 @@ const Gallery = () => {
     },
     {
       id: 4,
-      type: "image",
-      url: Image3,
+      type: "video",
+      url: "https://res.cloudinary.com/dosaigy3m/video/upload/v1776876036/VID-20260422-WA0044_smnsr3.mp4",
+      thumbnail: Image3,
       title: "Professional Flooring",
     },
   ];
