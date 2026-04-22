@@ -66,10 +66,10 @@ const Booking = () => {
 
     // reset slots and check for past times
     const updatedSlots = BASE_SLOTS.map((slot) => {
-      let isBooked = false;
+      let isPast = false;
 
       if (isPastDate) {
-        isBooked = true;
+        isPast = true;
       } else if (isToday) {
         // Extract start time "05:00" from "05:00-06:00"
         const startTimeStr = slot.time.split("-")[0];
@@ -78,13 +78,14 @@ const Booking = () => {
           "DD-MM-YYYY HH:mm",
         );
         if (slotStartTime.isBefore(dayjs())) {
-          isBooked = true;
+          isPast = true;
         }
       }
 
       return {
         ...slot,
-        booked: isBooked,
+        booked: false,
+        isPast: isPast,
       };
     });
 

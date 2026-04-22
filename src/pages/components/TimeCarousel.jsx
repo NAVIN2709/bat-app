@@ -18,10 +18,15 @@ const TimeCarousel = ({ slots = [], selectedSlots = [], onSlotSelect }) => {
         {slots?.map((slot, index) => {
           const isSelected = selectedSlots.includes(slot.time);
           const isBooked = slot.booked;
+          const isPast = slot.isPast;
 
           let styleClass = "";
+          let isDisabled = isBooked || isPast;
 
-          if (isBooked) {
+          if (isPast) {
+            styleClass =
+              "bg-gray-100 text-gray-400 border-green-500 cursor-not-allowed";
+          } else if (isBooked) {
             styleClass =
               "bg-red-600 text-white border-red-700 cursor-not-allowed opacity-80";
           } else if (isSelected) {
@@ -35,8 +40,8 @@ const TimeCarousel = ({ slots = [], selectedSlots = [], onSlotSelect }) => {
           return (
             <button
               key={index}
-              disabled={isBooked}
-              onClick={() => !isBooked && toggleSlot(slot.time)}
+              disabled={isDisabled}
+              onClick={() => !isDisabled && toggleSlot(slot.time)}
               className={`shrink-0 px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border ${styleClass}`}
             >
               {slot.time}
@@ -58,6 +63,10 @@ const TimeCarousel = ({ slots = [], selectedSlots = [], onSlotSelect }) => {
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded-full bg-red-600 border border-red-700 shadow-sm"></span>
           <span>Booked</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4 rounded-full bg-gray-100 border border-green-500 shadow-sm"></span>
+          <span>Past</span>
         </div>
       </div>
     </div>
