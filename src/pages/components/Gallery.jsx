@@ -27,7 +27,7 @@ const Gallery = () => {
     {
       id: 3,
       type: "video",
-      url: "https://videos.pexels.com/video-files/35087085/14864015_2560_1440_30fps.mp4",
+      url: "https://res.cloudinary.com/dosaigy3m/video/upload/v1777021317/WhatsApp_Video_2026-04-22_at_21.41.44_qghsti.mp4",
       thumbnail:
         Image5,
       title: "Match Highlights",
