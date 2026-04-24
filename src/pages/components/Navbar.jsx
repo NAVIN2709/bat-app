@@ -59,7 +59,7 @@ const NavBar = () => {
             className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-lg font-semibold transition duration-300 hover:bg-white hover:text-green-600 hover:border hover:border-green-600 hover:scale-105 cursor-pointer"
             onClick={handleMembership}
           >
-            Get Membership
+            Monthly Membership
           </button>
 
           {user ? (
@@ -103,7 +103,7 @@ const NavBar = () => {
             className="w-full bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-semibold transition duration-300 hover:bg-white hover:text-green-600 hover:border hover:border-green-600 hover:scale-105"
             onClick={handleMembership}
           >
-            Get Membership
+            Monthly Membership
           </button>
 
           {user ? (

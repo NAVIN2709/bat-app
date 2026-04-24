@@ -151,7 +151,7 @@ const Home = () => {
                 className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
                          hover:bg-green-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
-                Get Membership
+                Monthly Membership
               </button>
               </div>
             </div>

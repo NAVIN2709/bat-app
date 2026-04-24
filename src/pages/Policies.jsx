@@ -114,7 +114,7 @@ const PoliciesPage = () => {
               If you have any questions about this Privacy Policy or your data,
               contact us at{" "}
               <span className="font-medium text-green-700">
-                support@example.com
+                kavikannacourts@gmail.com , 9600614215, 9952608689
               </span>
               .
             </p>

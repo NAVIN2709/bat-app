@@ -10,6 +10,7 @@ import LoginPage from './pages/Login';
 import MembershipPage from './pages/Membership';
 import PoliciesPage from './pages/Policies';
 import TermsPage from './pages/Terms';
+import NotFound from './pages/NotFound';
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
         <Route path='/membership' element={<MembershipPage/>}/>
         <Route path='/privacy-policy' element={<PoliciesPage/>}/>
         <Route path='/terms-and-conditions' element={<TermsPage/>}/>
+        <Route path='*' element={<NotFound/>}/>
 
     </Routes>
   );

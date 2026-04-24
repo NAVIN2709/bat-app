@@ -52,7 +52,10 @@ const TermsPage = () => {
             </h2>
             <ul className="list-disc list-inside text-gray-700 space-y-1">
               <li>Use the platform only for lawful purposes</li>
-              <li>Do not attempt to exploit, reverse-engineer, or disrupt the service</li>
+              <li>
+                Do not attempt to exploit, reverse-engineer, or disrupt the
+                service
+              </li>
               <li>Do not misuse bookings, payments, or promotional features</li>
               <li>Do not upload false, misleading, or harmful content</li>
             </ul>
@@ -72,15 +75,38 @@ const TermsPage = () => {
           </section>
 
           {/* Payments */}
+          {/* Payments */}
           <section className="mb-6">
             <h2 className="text-xl font-semibold text-green-600 mb-2">
               5. Payments
             </h2>
-            <p className="text-gray-700">
+
+            <p className="text-gray-700 mb-2">
               Payments are processed through secure third-party payment
               gateways. We do not store your payment information. Any disputes
-              regarding payments must be resolved in accordance with the
-              payment provider’s policies.
+              regarding payments must be resolved in accordance with the payment
+              provider’s policies.
+            </p>
+
+            <p className="text-gray-700 mb-2">
+              A platform service fee is applied to support platform operations
+              and maintenance.
+            </p>
+
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              <li>
+                <span className="font-semibold text-green-700">₹99</span> is
+                charged for monthly membership plans.
+              </li>
+              <li>
+                <span className="font-semibold text-green-700">₹5</span> is
+                charged per booking for hourly booking.
+              </li>
+            </ul>
+
+            <p className="text-gray-700 mt-2">
+              These fees will be clearly reflected in the final amount at
+              checkout.
             </p>
           </section>
 
@@ -139,7 +165,7 @@ const TermsPage = () => {
             <p className="text-gray-700">
               For questions regarding these Terms & Conditions, contact us at{" "}
               <span className="font-medium text-green-700">
-                support@example.com
+                kavikannacourts@gmail.com , 9600614215, 9952608689
               </span>
               .
             </p>

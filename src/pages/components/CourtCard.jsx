@@ -43,7 +43,8 @@ const CourtCard = ({ court }) => {
         <p className="text-gray-600 text-sm">{court.location}</p>
 
         <div className="mt-3 flex justify-between items-center">
-          <p className="text-green-700 font-semibold text-xl">₹{court.price}</p>
+          <p className="text-green-700 font-semibold text-xl">₹{court.price}/hr</p>
+          
 
           <button
             onClick={() => handleCourtClick(court._id)}
