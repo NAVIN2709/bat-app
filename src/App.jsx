@@ -11,10 +11,13 @@ import MembershipPage from './pages/Membership';
 import PoliciesPage from './pages/Policies';
 import TermsPage from './pages/Terms';
 import NotFound from './pages/NotFound';
+import EventComponent from './pages/components/EventComponent';
 
 const App = () => {
   return (
-    <Routes>
+    <div className="app">
+      <EventComponent/>
+      <Routes>
         {/* Home page */}
         <Route path="/" element={<Home />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
@@ -35,6 +38,7 @@ const App = () => {
         <Route path='*' element={<NotFound/>}/>
 
     </Routes>
+    </div>
   );
 };
 

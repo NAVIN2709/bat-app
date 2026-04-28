@@ -43,7 +43,7 @@ const Home = () => {
 
   const ToMembership = () => {
     navigate("/membership");
-  }
+  };
 
   if (!courts)
     return (
@@ -140,19 +140,19 @@ const Home = () => {
 
               <div className="buttons sm:block gap-4 md:flex lg:flex">
                 <button
-                onClick={scrollToCourts}
-                className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
+                  onClick={scrollToCourts}
+                  className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
                          hover:bg-green-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
-                Explore Courts
-              </button>
-              <button
-                onClick={ToMembership}
-                className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
+                >
+                  Explore Courts
+                </button>
+                <button
+                  onClick={ToMembership}
+                  className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white text-lg shadow-lg 
                          hover:bg-green-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
-                Monthly Membership
-              </button>
+                >
+                  Monthly Membership
+                </button>
               </div>
             </div>
 
