@@ -1,0 +1,23 @@
+# Keeps the Render free-tier backend awake by pinging /health on a schedule.
+# Render spins a free service down after ~15 min without traffic; this pings
+# every 10 min. Note: GitHub can delay scheduled runs (sometimes 10+ min
+# under load), so an occasional cold start is still possible.
+name: Keep backend awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # every 10 minutes (UTC)
+  workflow_dispatch: # lets you run it manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health
+        run: |
+          # A sleeping service can take ~30–60s to boot, so allow a long
+          # timeout and a few retries before calling it a failure.
+          curl --fail --silent --show-error \
+               --max-time 90 --retry 3 --retry-delay 15 --retry-all-errors \
+               https://kavikanna-razorpay.onrender.com
